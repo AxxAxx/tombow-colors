@@ -1,0 +1,1301 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Tombow ABT — 108 Color Library</title>
+<style>
+  :root {
+    --bg: #f6f5f1;
+    --bg-elev: #ffffff;
+    --ink: #1c1b1a;
+    --ink-soft: #5a5854;
+    --line: #e7e3da;
+    --accent: #d6332c;
+    --accent-2: #1f6feb;
+    --shadow: 0 1px 2px rgba(0,0,0,.04), 0 8px 24px rgba(20,18,15,.06);
+    --radius: 14px;
+    --radius-sm: 8px;
+    --mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-feature-settings: "ss01","cv11";
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Header */
+  .topbar {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(246,245,241,.85);
+    backdrop-filter: saturate(140%) blur(12px);
+    border-bottom: 1px solid var(--line);
+  }
+  .topbar-inner {
+    max-width: 1320px; margin: 0 auto;
+    padding: 14px 24px;
+    display: flex; align-items: center; gap: 20px;
+  }
+  .brand {
+    display: flex; align-items: baseline; gap: 10px;
+  }
+  .brand .mark {
+    font-family: var(--mono);
+    font-size: 12px; letter-spacing: .14em;
+    background: var(--ink); color: #fff;
+    padding: 4px 8px; border-radius: 4px;
+  }
+  .brand h1 {
+    margin: 0; font-size: 18px; font-weight: 600; letter-spacing: -.01em;
+  }
+  .brand .sub {
+    color: var(--ink-soft); font-size: 13px;
+  }
+  .stats {
+    margin-left: auto;
+    display: flex; align-items: center; gap: 14px;
+    font-size: 13px;
+  }
+  .progress {
+    width: 220px; height: 8px;
+    background: var(--line); border-radius: 999px; overflow: hidden;
+  }
+  .progress > span {
+    display: block; height: 100%;
+    background: linear-gradient(90deg, var(--accent), #f0a04b);
+    transition: width .4s cubic-bezier(.2,.8,.2,1);
+  }
+  .count {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--ink);
+  }
+  .count em { color: var(--ink-soft); font-style: normal; }
+
+  /* Hero */
+  .hero {
+    max-width: 1320px; margin: 0 auto; padding: 36px 24px 18px;
+  }
+  .hero h2 {
+    margin: 0; font-size: clamp(28px, 4vw, 48px);
+    letter-spacing: -.02em; line-height: 1.05; font-weight: 700;
+  }
+  .hero p {
+    margin: 10px 0 0; max-width: 640px; color: var(--ink-soft);
+    font-size: 15px; line-height: 1.55;
+  }
+
+  /* Layout */
+  .layout {
+    max-width: 1320px; margin: 0 auto; padding: 12px 24px 64px;
+    display: grid; grid-template-columns: 360px 1fr; gap: 28px;
+    align-items: start;
+  }
+  @media (max-width: 1000px) {
+    .layout { grid-template-columns: 1fr; }
+  }
+
+  /* Matcher panel */
+  .panel {
+    background: var(--bg-elev);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 22px;
+    position: sticky; top: 84px;
+    max-height: calc(100vh - 100px);
+    overflow-y: auto;
+  }
+  @media (max-width: 1000px) { .panel { position: static; } }
+  .panel h3 {
+    margin: 0 0 4px; font-size: 16px; letter-spacing: -.01em;
+  }
+  .panel .lede {
+    margin: 0 0 18px; color: var(--ink-soft); font-size: 13px;
+  }
+  .swatch-preview {
+    height: 110px; border-radius: var(--radius-sm);
+    border: 1px solid var(--line);
+    background: #ffd1a8;
+    position: relative; overflow: hidden;
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,.04);
+  }
+  .swatch-preview .label {
+    position: absolute; bottom: 10px; left: 12px;
+    font-family: var(--mono); font-size: 12px;
+    background: rgba(255,255,255,.85);
+    color: var(--ink); padding: 4px 7px; border-radius: 4px;
+  }
+  .input-row {
+    display: grid; grid-template-columns: auto 1fr auto; gap: 10px;
+    align-items: center; margin-top: 14px;
+  }
+  .input-row label {
+    font-family: var(--mono); font-size: 11px; color: var(--ink-soft);
+    text-transform: uppercase; letter-spacing: .1em;
+  }
+  .input-row input[type="color"] {
+    width: 44px; height: 32px; border: 1px solid var(--line);
+    border-radius: 6px; padding: 0; background: none; cursor: pointer;
+  }
+  .input-row input[type="text"] {
+    width: 100%; font-family: var(--mono); font-size: 13px;
+    padding: 8px 10px; border: 1px solid var(--line); border-radius: 6px;
+    background: var(--bg); color: var(--ink);
+  }
+  .input-row input[type="text"]:focus { outline: 2px solid var(--accent-2); outline-offset: 1px; }
+  .input-row input.invalid { border-color: var(--accent); background: #fdf2f1; }
+  .ncs-hint {
+    grid-column: 2 / 4;
+    font-family: var(--mono); font-size: 10.5px; color: var(--ink-soft);
+    margin-top: -4px;
+  }
+  .ncs-hint b { color: var(--ink); font-weight: 600; }
+  .slider-row {
+    display: grid; grid-template-columns: 18px 1fr 42px; gap: 10px;
+    align-items: center; margin-top: 8px;
+  }
+  .slider-row .name {
+    font-family: var(--mono); font-size: 12px; color: var(--ink-soft);
+  }
+  .slider-row .val {
+    font-family: var(--mono); font-size: 12px; text-align: right;
+  }
+  input[type="range"] {
+    -webkit-appearance: none; appearance: none;
+    width: 100%; height: 6px; border-radius: 999px;
+    background: var(--line); outline: none;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none;
+    width: 16px; height: 16px; border-radius: 50%;
+    background: var(--ink); border: 2px solid #fff;
+    box-shadow: 0 1px 4px rgba(0,0,0,.2); cursor: pointer;
+  }
+  input[type="range"]::-moz-range-thumb {
+    width: 16px; height: 16px; border-radius: 50%;
+    background: var(--ink); border: 2px solid #fff; cursor: pointer;
+  }
+
+  /* Image picker */
+  .image-section { margin-top: 18px; }
+  .image-section .head {
+    display: flex; align-items: baseline; justify-content: space-between;
+    margin-bottom: 8px;
+  }
+  .image-section h4 {
+    margin: 0; font-size: 13px; letter-spacing: .04em;
+    text-transform: uppercase; color: var(--ink-soft);
+  }
+  .image-section .head .clearImg {
+    background: transparent; border: 0; padding: 0;
+    font: inherit; font-size: 11px; color: var(--ink-soft);
+    cursor: pointer; text-decoration: underline;
+  }
+  .image-section .head .clearImg:hover { color: var(--accent); }
+  .upload-btn {
+    display: flex; align-items: center; justify-content: center;
+    gap: 8px;
+    background: #fff; border: 1.5px dashed var(--line);
+    padding: 22px 16px;
+    border-radius: var(--radius-sm); font-size: 13px; color: var(--ink-soft);
+    cursor: pointer; text-align: center;
+    transition: border-color .15s, color .15s, background .15s;
+  }
+  .upload-btn:hover, .upload-btn.dragging {
+    border-color: var(--accent-2); color: var(--accent-2); background: #f4f8ff;
+  }
+  .upload-btn svg { flex: none; }
+  .image-stage {
+    position: relative;
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    border: 1px solid var(--line);
+    background-image:
+      linear-gradient(45deg, #eee 25%, transparent 25%),
+      linear-gradient(-45deg, #eee 25%, transparent 25%),
+      linear-gradient(45deg, transparent 75%, #eee 75%),
+      linear-gradient(-45deg, transparent 75%, #eee 75%);
+    background-size: 16px 16px;
+    background-position: 0 0, 0 8px, 8px -8px, -8px 0;
+    background-color: #fafafa;
+  }
+  .image-stage canvas#imageCanvas {
+    display: block;
+    width: 100%; height: auto;
+    cursor: crosshair;
+    touch-action: none;
+  }
+  .magnifier {
+    position: absolute; pointer-events: none;
+    width: 96px; height: 96px;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    box-shadow: 0 4px 14px rgba(0,0,0,.28), 0 0 0 1px rgba(0,0,0,.25);
+    overflow: hidden;
+    background: #fff;
+  }
+  .magnifier canvas {
+    display: block; width: 100%; height: 100%;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+  }
+  .magnifier .cross {
+    position: absolute; inset: 0; pointer-events: none;
+  }
+  .magnifier .cross::before, .magnifier .cross::after {
+    content: ""; position: absolute; background: rgba(0,0,0,.55);
+    box-shadow: 0 0 0 1px rgba(255,255,255,.6);
+  }
+  .magnifier .cross::before { left: 50%; top: 0; width: 1px; height: 100%; transform: translateX(-.5px); }
+  .magnifier .cross::after  { top: 50%; left: 0; height: 1px; width: 100%; transform: translateY(-.5px); }
+  .image-status {
+    display: flex; align-items: center; gap: 8px;
+    margin-top: 8px;
+    font-family: var(--mono); font-size: 11px; color: var(--ink-soft);
+  }
+  .image-status .pip {
+    width: 14px; height: 14px; border-radius: 3px;
+    border: 1px solid rgba(0,0,0,.12);
+    background: transparent;
+  }
+
+  .matches { margin-top: 22px; }
+  .matches .head {
+    display: flex; align-items: baseline; justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  .matches .head h4 {
+    margin: 0; font-size: 13px; letter-spacing: .04em; text-transform: uppercase; color: var(--ink-soft);
+  }
+  .match-card {
+    display: grid; grid-template-columns: 56px 1fr auto;
+    gap: 12px; align-items: center;
+    padding: 10px; border: 1px solid var(--line);
+    border-radius: var(--radius-sm); margin-bottom: 8px;
+    transition: transform .15s, border-color .15s;
+    cursor: pointer; background: #fff;
+  }
+  .match-card:hover { transform: translateY(-1px); border-color: #cfc9bd; }
+  .match-card.best {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(214,51,44,.12);
+  }
+  .match-card .swatch {
+    width: 56px; height: 56px; border-radius: 6px;
+    border: 1px solid rgba(0,0,0,.08);
+  }
+  .match-card .meta {
+    display: flex; flex-direction: column; gap: 2px; min-width: 0;
+  }
+  .match-card .num {
+    font-family: var(--mono); font-size: 11px;
+    color: var(--ink-soft); letter-spacing: .04em;
+  }
+  .match-card .name {
+    font-size: 14px; font-weight: 600; letter-spacing: -.01em;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .match-card .delta {
+    font-family: var(--mono); font-size: 11px;
+    color: var(--ink-soft); text-align: right;
+  }
+  .match-card .delta b {
+    display: block; color: var(--ink); font-weight: 600;
+  }
+  .match-card.owned::after {
+    content: "✓ owned"; font-family: var(--mono);
+    font-size: 10px; color: #2a8a4a; letter-spacing: .06em;
+  }
+
+  /* Toolbar */
+  .toolbar {
+    display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
+    margin-bottom: 16px;
+  }
+  .chips {
+    display: inline-flex; background: #fff; border: 1px solid var(--line);
+    border-radius: 999px; padding: 4px;
+  }
+  .chip {
+    border: 0; background: transparent; padding: 7px 14px;
+    font: inherit; font-size: 13px; cursor: pointer; color: var(--ink-soft);
+    border-radius: 999px; transition: background .15s, color .15s;
+  }
+  .chip:hover { color: var(--ink); }
+  .chip.active { background: var(--ink); color: #fff; }
+  .search {
+    flex: 1; min-width: 180px; max-width: 360px;
+    background: #fff; border: 1px solid var(--line);
+    border-radius: 999px; padding: 8px 14px;
+    font-family: var(--mono); font-size: 13px;
+  }
+  .search:focus { outline: 2px solid var(--accent-2); outline-offset: 1px; }
+  .toolbar .actions { margin-left: auto; display: flex; gap: 8px; }
+  .btn {
+    background: #fff; border: 1px solid var(--line); padding: 7px 12px;
+    border-radius: 999px; font: inherit; font-size: 12px;
+    color: var(--ink-soft); cursor: pointer;
+  }
+  .btn:hover { color: var(--ink); border-color: #cfc9bd; }
+
+  /* Grid */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 14px;
+  }
+  .card {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    cursor: pointer;
+    transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+    position: relative;
+    isolation: isolate;
+  }
+  .card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 1px 2px rgba(0,0,0,.04), 0 14px 32px rgba(20,18,15,.10);
+    border-color: #d6cfbf;
+  }
+  .card.owned { border-color: #2a8a4a; }
+  .card.owned::before {
+    content: "";
+    position: absolute; inset: 0;
+    border: 2px solid #2a8a4a;
+    border-radius: var(--radius);
+    pointer-events: none; z-index: 2;
+  }
+  .card .swatch {
+    aspect-ratio: 1 / 1;
+    width: 100%;
+    position: relative;
+  }
+  .card .check {
+    position: absolute; top: 10px; right: 10px;
+    width: 26px; height: 26px; border-radius: 50%;
+    background: rgba(255,255,255,.7);
+    border: 1px solid rgba(0,0,0,.08);
+    display: grid; place-items: center;
+    color: transparent;
+    font-size: 14px; font-weight: 800;
+    transition: background .15s, color .15s, transform .15s;
+    backdrop-filter: blur(4px);
+  }
+  .card.owned .check {
+    background: #2a8a4a; color: #fff; border-color: #2a8a4a;
+    transform: scale(1.05);
+  }
+  .card .meta {
+    padding: 10px 12px 12px;
+  }
+  .card .num {
+    font-family: var(--mono); font-size: 11px;
+    letter-spacing: .04em; color: var(--ink-soft);
+  }
+  .card .name {
+    font-size: 13.5px; font-weight: 600;
+    letter-spacing: -.005em; line-height: 1.25;
+    margin-top: 2px;
+  }
+  .card.match-highlight {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(214,51,44,.18), var(--shadow);
+  }
+
+  .empty {
+    padding: 60px 20px; text-align: center; color: var(--ink-soft);
+    font-size: 14px;
+  }
+
+  /* Collection modal */
+  .modal-backdrop {
+    position: fixed; inset: 0; z-index: 100;
+    background: rgba(20,18,15,.42);
+    backdrop-filter: blur(6px);
+    display: none; align-items: center; justify-content: center;
+    padding: 28px;
+  }
+  .modal-backdrop.open { display: flex; }
+  .modal {
+    background: var(--bg-elev);
+    border-radius: var(--radius);
+    box-shadow: 0 24px 80px rgba(0,0,0,.25);
+    width: 100%; max-width: 760px; max-height: 86vh;
+    display: flex; flex-direction: column;
+    overflow: hidden;
+  }
+  .modal header {
+    padding: 20px 24px; border-bottom: 1px solid var(--line);
+    display: flex; align-items: baseline; gap: 12px;
+  }
+  .modal header h3 { margin: 0; font-size: 18px; letter-spacing: -.01em; }
+  .modal header .sub { color: var(--ink-soft); font-size: 13px; }
+  .modal header .close {
+    margin-left: auto; background: transparent; border: 0;
+    font-size: 22px; line-height: 1; cursor: pointer; color: var(--ink-soft);
+    padding: 4px 8px; border-radius: 6px;
+  }
+  .modal header .close:hover { background: var(--bg); color: var(--ink); }
+  .modal .body {
+    overflow: auto; padding: 8px 24px 12px;
+  }
+  .modal .body .empty-collection {
+    padding: 60px 20px; text-align: center; color: var(--ink-soft);
+    font-size: 14px;
+  }
+  .row {
+    display: grid;
+    grid-template-columns: 36px 70px 1fr 90px 28px;
+    gap: 12px; align-items: center;
+    padding: 8px 4px;
+    border-bottom: 1px solid var(--line);
+  }
+  .row:last-child { border-bottom: 0; }
+  .row .sw { width: 28px; height: 28px; border-radius: 6px; border: 1px solid rgba(0,0,0,.08); }
+  .row .num { font-family: var(--mono); font-size: 12px; color: var(--ink-soft); letter-spacing: .04em; }
+  .row .nm { font-size: 14px; font-weight: 500; }
+  .row .hx { font-family: var(--mono); font-size: 11px; color: var(--ink-soft); text-align: right; }
+  .row .rm {
+    background: transparent; border: 0; cursor: pointer;
+    color: var(--ink-soft); font-size: 16px; line-height: 1;
+    padding: 4px; border-radius: 4px;
+  }
+  .row .rm:hover { color: var(--accent); background: #fdf2f1; }
+  .modal footer {
+    padding: 14px 24px; border-top: 1px solid var(--line);
+    display: flex; gap: 8px; align-items: center;
+    background: var(--bg);
+  }
+  .modal footer .meta { color: var(--ink-soft); font-size: 13px; margin-right: auto; font-family: var(--mono); }
+
+  @media print {
+    body * { visibility: hidden; }
+    .modal-backdrop, .modal-backdrop * { visibility: visible; }
+    .modal-backdrop { position: static; padding: 0; background: #fff; backdrop-filter: none; }
+    .modal { box-shadow: none; max-height: none; max-width: none; }
+    .modal header .close, .modal footer { display: none; }
+    .row { break-inside: avoid; }
+  }
+
+  footer {
+    max-width: 1320px; margin: 0 auto; padding: 24px;
+    color: var(--ink-soft); font-size: 12px;
+    border-top: 1px solid var(--line);
+  }
+  footer a { color: var(--ink-soft); }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <span class="mark">ABT 108</span>
+      <h1>Tombow Color Library</h1>
+      <span class="sub">— Dual Brush Pen reference</span>
+    </div>
+    <div class="stats">
+      <div class="count"><span id="ownedCount">0</span><em>/108 owned</em></div>
+      <div class="progress" aria-hidden="true"><span id="progressBar" style="width:0%"></span></div>
+    </div>
+  </div>
+</div>
+
+<div class="hero">
+  <h2>Every pen, every shade.</h2>
+  <p>Browse all 108 Tombow ABT Dual Brush Pen colors, mark which ones you own, and find the closest pencil match for any RGB color you give it.</p>
+</div>
+
+<main class="layout">
+
+  <aside class="panel" aria-label="Color matcher">
+    <h3>Find the closest pen</h3>
+    <p class="lede">Enter any color and we'll rank the nearest matches by perceptual distance (CIE Lab ΔE).</p>
+
+    <div class="swatch-preview" id="previewSwatch">
+      <span class="label" id="previewLabel">#ffd1a8</span>
+    </div>
+
+    <div class="input-row">
+      <label for="picker">Hex</label>
+      <input id="hexInput" type="text" value="#ffd1a8" maxlength="7" spellcheck="false" />
+      <input id="picker" type="color" value="#ffd1a8" />
+    </div>
+
+    <div class="input-row">
+      <label for="ncsInput">NCS</label>
+      <input id="ncsInput" type="text" placeholder="e.g. S 1050-Y90R" spellcheck="false" />
+      <span style="width:44px;height:32px;border:1px solid var(--line);border-radius:6px;display:grid;place-items:center;font-family:var(--mono);font-size:10px;color:var(--ink-soft)">NCS</span>
+      <div class="ncs-hint">Format <b>S BBCC-HUE</b> — e.g. <b>S 0500-N</b>, <b>S 2070-Y</b>, <b>S 4030-R70B</b></div>
+    </div>
+
+    <div class="slider-row">
+      <span class="name">R</span>
+      <input id="rSlider" type="range" min="0" max="255" value="255" />
+      <span class="val" id="rVal">255</span>
+    </div>
+    <div class="slider-row">
+      <span class="name">G</span>
+      <input id="gSlider" type="range" min="0" max="255" value="209" />
+      <span class="val" id="gVal">209</span>
+    </div>
+    <div class="slider-row">
+      <span class="name">B</span>
+      <input id="bSlider" type="range" min="0" max="255" value="168" />
+      <span class="val" id="bVal">168</span>
+    </div>
+
+    <div class="image-section">
+      <div class="head">
+        <h4>From an image</h4>
+        <button class="clearImg" id="clearImageBtn" hidden>clear</button>
+      </div>
+      <label class="upload-btn" id="uploadBtn">
+        <input type="file" id="imageInput" accept="image/*" hidden />
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        <span>Drop an image, or click to upload</span>
+      </label>
+      <div class="image-stage" id="imageStage" hidden>
+        <canvas id="imageCanvas"></canvas>
+        <div class="magnifier" id="magnifier" hidden>
+          <canvas id="magCanvas" width="120" height="120"></canvas>
+          <div class="cross"></div>
+        </div>
+      </div>
+      <div class="image-status" id="imageStatus" hidden>
+        <span class="pip" id="pickedPip"></span>
+        <span id="pickedText">Click anywhere on the image to pick a pixel</span>
+      </div>
+    </div>
+
+    <div class="matches">
+      <div class="head">
+        <h4>Closest matches</h4>
+        <span class="count" style="font-size:11px;color:var(--ink-soft)">ΔE76</span>
+      </div>
+      <div id="matchList"></div>
+    </div>
+  </aside>
+
+  <section>
+    <div class="toolbar">
+      <div class="chips" role="tablist" aria-label="Filter">
+        <button class="chip active" data-filter="all">All</button>
+        <button class="chip" data-filter="owned">Owned</button>
+        <button class="chip" data-filter="missing">Missing</button>
+      </div>
+      <input id="search" class="search" type="search" placeholder="Search number or name…" />
+      <div class="actions">
+        <button class="btn" id="collectionBtn" title="View list of all colors you own">My Collection</button>
+        <button class="btn" id="exportBtn" title="Export your owned list as JSON">Export</button>
+        <button class="btn" id="importBtn" title="Import an owned list from a JSON backup">Import</button>
+        <input id="importFile" type="file" accept="application/json,.json" hidden />
+        <button class="btn" id="resetBtn" title="Clear all owned marks">Reset</button>
+      </div>
+    </div>
+
+    <div id="grid" class="grid"></div>
+    <div id="empty" class="empty" hidden>No colors match your filter.</div>
+  </section>
+
+</main>
+
+<footer>
+  Color values are approximations from Tombow's published ABT chart. NCS values are perceptual approximations (whiteness/blackness/chromaticness mix). Actual ink may vary — verify against your physical pens. Data is stored in your browser only.
+</footer>
+
+<div class="modal-backdrop" id="collectionModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="modal">
+    <header>
+      <h3 id="modalTitle">My Collection</h3>
+      <span class="sub" id="modalSub">0 of 108</span>
+      <button class="close" id="modalClose" aria-label="Close">×</button>
+    </header>
+    <div class="body" id="collectionBody"></div>
+    <footer>
+      <span class="meta" id="modalMeta"></span>
+      <button class="btn" id="copyListBtn">Copy as text</button>
+      <button class="btn" id="printListBtn">Print</button>
+    </footer>
+  </div>
+</div>
+
+<script>
+  /* -------------------------------------------------------------------- *
+   * Tombow ABT Dual Brush Pen — 108 colors
+   * Edit any entry below; { number, name, hex } is the only schema.
+   * -------------------------------------------------------------------- */
+  const COLORS = [
+    { number: "020", name: "Peach",            hex: "#f7d4b9" },
+    { number: "025", name: "Light Orange",     hex: "#f7c688" },
+    { number: "026", name: "Yellow Gold",      hex: "#f5b859" },
+    { number: "027", name: "Dark Ochre",       hex: "#b3884c" },
+    { number: "028", name: "Bright Orange",    hex: "#f49e5d" },
+    { number: "055", name: "Process Yellow",   hex: "#fbe72c" },
+    { number: "062", name: "Pale Yellow",      hex: "#f9eb8a" },
+    { number: "076", name: "Green Ochre",      hex: "#c2a64f" },
+    { number: "090", name: "Baby Yellow",      hex: "#faecb1" },
+    { number: "091", name: "Pale Khaki",       hex: "#d8c89a" },
+    { number: "099", name: "Yellow",           hex: "#fbd400" },
+    { number: "126", name: "Light Olive",      hex: "#c8c68f" },
+    { number: "133", name: "Chartreuse",       hex: "#c0d44a" },
+    { number: "158", name: "Dark Olive",       hex: "#79854a" },
+    { number: "173", name: "Willow Green",     hex: "#a3c79a" },
+    { number: "177", name: "Dark Jade",        hex: "#5a8e6f" },
+    { number: "192", name: "Asparagus",        hex: "#8aa05f" },
+    { number: "195", name: "Light Green",      hex: "#98c177" },
+    { number: "228", name: "Gray Green",       hex: "#7c8c75" },
+    { number: "243", name: "Mint",             hex: "#b3d9bb" },
+    { number: "245", name: "Sap Green",        hex: "#75a76a" },
+    { number: "249", name: "Hunter Green",     hex: "#2f6b3c" },
+    { number: "277", name: "Dark Green",       hex: "#196d3a" },
+    { number: "296", name: "Green",            hex: "#54b878" },
+    { number: "312", name: "Holly Green",      hex: "#2f9c5a" },
+    { number: "346", name: "Sea Green",        hex: "#4ba48a" },
+    { number: "373", name: "Sea Blue",         hex: "#6da9bf" },
+    { number: "379", name: "Jade Green",       hex: "#61a597" },
+    { number: "381", name: "Cyan",             hex: "#00aec3" },
+    { number: "386", name: "Stem Green",       hex: "#8eb992" },
+    { number: "397", name: "Pale Blue",        hex: "#aac8e1" },
+    { number: "403", name: "Bright Blue",      hex: "#2a84c8" },
+    { number: "407", name: "Tiki Teal",        hex: "#176a6f" },
+    { number: "408", name: "Tahitian Blue",    hex: "#1d6f8e" },
+    { number: "443", name: "Turquoise",        hex: "#18a4b9" },
+    { number: "451", name: "Sky Blue",         hex: "#80b5d8" },
+    { number: "452", name: "Process Blue",     hex: "#0080c0" },
+    { number: "465", name: "Pale Cerulean",    hex: "#9ec3e0" },
+    { number: "476", name: "Cyan",             hex: "#00b3d4" },
+    { number: "491", name: "Indigo",           hex: "#2c4576" },
+    { number: "493", name: "Reflex Blue",      hex: "#2a3680" },
+    { number: "526", name: "True Blue",        hex: "#265db7" },
+    { number: "528", name: "Navy Blue",        hex: "#213763" },
+    { number: "533", name: "Peacock Blue",     hex: "#2475a3" },
+    { number: "535", name: "Cobalt Blue",      hex: "#25478a" },
+    { number: "543", name: "Lavender",         hex: "#b1aed4" },
+    { number: "553", name: "Mist Purple",      hex: "#b4a4c8" },
+    { number: "565", name: "Deep Blue",        hex: "#4f5d96" },
+    { number: "569", name: "Jet Blue",         hex: "#2c4584" },
+    { number: "603", name: "Periwinkle",       hex: "#9396c5" },
+    { number: "606", name: "Violet",           hex: "#6e6cae" },
+    { number: "620", name: "Lilac",            hex: "#c5a3c8" },
+    { number: "623", name: "Purple Sage",      hex: "#97819f" },
+    { number: "624", name: "Lavender",         hex: "#c2bcd8" },
+    { number: "636", name: "Imperial Purple",  hex: "#786a98" },
+    { number: "665", name: "Purple",           hex: "#6c4393" },
+    { number: "676", name: "Royal Purple",     hex: "#5a3a7a" },
+    { number: "679", name: "Dark Plum",        hex: "#58325a" },
+    { number: "685", name: "Deep Magenta",     hex: "#b83887" },
+    { number: "703", name: "Pink Rose",        hex: "#ee9eb5" },
+    { number: "725", name: "Rhodamine Red",    hex: "#d8186e" },
+    { number: "743", name: "Hot Pink",         hex: "#e8458b" },
+    { number: "755", name: "Rubine Red",       hex: "#c41e6a" },
+    { number: "761", name: "Carnation",        hex: "#f7afba" },
+    { number: "772", name: "Dusty Rose",       hex: "#c47b8a" },
+    { number: "803", name: "Pink Punch",       hex: "#f0a3b6" },
+    { number: "815", name: "Cherry",           hex: "#c12649" },
+    { number: "817", name: "Mauve",            hex: "#a4546f" },
+    { number: "818", name: "Salmon",           hex: "#ec8579" },
+    { number: "820", name: "Peach",            hex: "#f3b8a4" },
+    { number: "835", name: "Persimmon",        hex: "#e36b4d" },
+    { number: "837", name: "Wine Red",         hex: "#802b3a" },
+    { number: "845", name: "Carmine",          hex: "#c0294a" },
+    { number: "847", name: "Crimson",          hex: "#a82942" },
+    { number: "850", name: "Light Apricot",    hex: "#f8c9aa" },
+    { number: "856", name: "Poppy Orange",     hex: "#e75a3a" },
+    { number: "873", name: "Coral",            hex: "#f08e72" },
+    { number: "877", name: "Plum",             hex: "#855477" },
+    { number: "879", name: "Brown",            hex: "#7c5237" },
+    { number: "885", name: "Warm Stone",       hex: "#c19a7e" },
+    { number: "899", name: "Redwood",          hex: "#a44e3a" },
+    { number: "905", name: "Red",              hex: "#d52332" },
+    { number: "925", name: "Scarlet Red",      hex: "#d83a36" },
+    { number: "933", name: "Orange",           hex: "#ee7530" },
+    { number: "947", name: "Burnt Sienna",     hex: "#a14a25" },
+    { number: "977", name: "Saddle Brown",     hex: "#6b3e25" },
+    { number: "992", name: "Sand",             hex: "#d8b787" },
+    { number: "993", name: "Chrome Orange",    hex: "#f49a35" },
+    { number: "942", name: "Warm Gray 3",      hex: "#a8a098" },
+    { number: "949", name: "Burnt Sienna 2",   hex: "#9a4824" },
+    { number: "969", name: "Chocolate",        hex: "#5d3a26" },
+    { number: "989", name: "Brown Earth",      hex: "#8c5a36" },
+    { number: "991", name: "Light Ochre",      hex: "#dec48b" },
+    { number: "996", name: "Beige",            hex: "#e6cfa9" },
+    { number: "N15", name: "Black",            hex: "#1a1a1a" },
+    { number: "N25", name: "Lamp Black",       hex: "#2a2a2a" },
+    { number: "N35", name: "Cool Gray 12",     hex: "#4d4d4d" },
+    { number: "N45", name: "Cool Gray 10",     hex: "#6f6f6f" },
+    { number: "N52", name: "Cool Gray 1",      hex: "#d4d4d4" },
+    { number: "N55", name: "Cool Gray 5",      hex: "#a0a0a0" },
+    { number: "N57", name: "Warm Gray 5",      hex: "#9c9591" },
+    { number: "N60", name: "Tea Green",        hex: "#c2c4a8" },
+    { number: "N65", name: "Warm Gray 2",      hex: "#c2bbb5" },
+    { number: "N75", name: "Cool Gray 3",      hex: "#b8b8b8" },
+    { number: "N79", name: "Warm Gray 1",      hex: "#d6cdc4" },
+    { number: "N89", name: "Warm Gray 4",      hex: "#918880" },
+    { number: "N95", name: "Cool Gray 0",      hex: "#e2e2e2" },
+    { number: "N99", name: "Black Ink",        hex: "#000000" },
+    { number: "942", name: "Warm Gray 3 alt",  hex: "#a8a098" },
+  ];
+
+  /* Deduplicate by number+name (in case data edits introduce dups) and trim to 108 */
+  const seen = new Set();
+  const DATA = [];
+  for (const c of COLORS) {
+    const key = c.number + "|" + c.name;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    DATA.push(c);
+    if (DATA.length === 108) break;
+  }
+
+  /* -------------------------------------------------------------------- *
+   * Color math: sRGB -> linear -> XYZ -> Lab; ΔE76 distance.
+   * -------------------------------------------------------------------- */
+  function hexToRgb(hex) {
+    const h = hex.replace("#", "");
+    const v = h.length === 3 ? h.split("").map(c => c + c).join("") : h;
+    const n = parseInt(v, 16);
+    return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255 };
+  }
+  function rgbToHex(r, g, b) {
+    const to = v => v.toString(16).padStart(2, "0");
+    return "#" + to(r) + to(g) + to(b);
+  }
+  function srgbToLinear(c) {
+    c /= 255;
+    return c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+  }
+  function rgbToLab({ r, g, b }) {
+    const lr = srgbToLinear(r), lg = srgbToLinear(g), lb = srgbToLinear(b);
+    let x = (lr * 0.4124564 + lg * 0.3575761 + lb * 0.1804375) / 0.95047;
+    let y = (lr * 0.2126729 + lg * 0.7151522 + lb * 0.0721750) / 1.00000;
+    let z = (lr * 0.0193339 + lg * 0.1191920 + lb * 0.9503041) / 1.08883;
+    const f = t => t > 0.008856 ? Math.cbrt(t) : 7.787 * t + 16 / 116;
+    const fx = f(x), fy = f(y), fz = f(z);
+    return { L: 116 * fy - 16, a: 500 * (fx - fy), b: 200 * (fy - fz) };
+  }
+  function deltaE(lab1, lab2) {
+    const dL = lab1.L - lab2.L, da = lab1.a - lab2.a, db = lab1.b - lab2.b;
+    return Math.sqrt(dL * dL + da * da + db * db);
+  }
+  function luminance(hex) {
+    const { r, g, b } = hexToRgb(hex);
+    const L = 0.2126 * srgbToLinear(r) + 0.7152 * srgbToLinear(g) + 0.0722 * srgbToLinear(b);
+    return L;
+  }
+  function readableTextColor(hex) {
+    return luminance(hex) > 0.55 ? "#1c1b1a" : "#ffffff";
+  }
+
+  /* Pre-compute Lab for all colors */
+  DATA.forEach(c => { c.lab = rgbToLab(hexToRgb(c.hex)); });
+
+  /* -------------------------------------------------------------------- *
+   * NCS → RGB approximation
+   * NCS notation: "S BBCC-HUE"
+   *   BB = blackness (00-90), CC = chromaticness (00-90), 00 ≤ BB+CC ≤ 100
+   *   HUE = "N" (neutral) | one of Y R B G | mixed like "Y90R", "R50B"
+   *
+   * Approximation: result = whiteness*W + blackness*K + chromaticness*HueRGB
+   *   where whiteness = 100 - BB - CC.  HueRGB is interpolated between the
+   *   four elementary hues. This is NOT a colorimetric conversion — NCS is
+   *   a perceptual system — but it produces a usable visual match.
+   * -------------------------------------------------------------------- */
+  const NCS_HUES = {
+    Y: { r: 247, g: 208, b:   0 },
+    R: { r: 196, g:  30, b:  58 },
+    B: { r:   0, g: 105, b: 158 },
+    G: { r:   0, g: 140, b:  92 },
+  };
+  function parseNCS(input) {
+    const s = (input || "").trim().toUpperCase().replace(/^S\s+/, "");
+    const m = s.match(/^(\d{2})(\d{2})-(N|[YRBG]\d{2}[YRBG]|[YRBG])$/);
+    if (!m) return null;
+    const blackness = parseInt(m[1], 10);
+    const chromaticness = parseInt(m[2], 10);
+    if (blackness + chromaticness > 100) return null;
+    return { blackness, chromaticness, hue: m[3] };
+  }
+  function ncsHueToRgb(hue) {
+    if (hue === "N") return { r: 128, g: 128, b: 128 };
+    if (hue.length === 1) return NCS_HUES[hue];
+    const from = hue[0], pct = parseInt(hue.slice(1, 3), 10) / 100, to = hue[3];
+    const a = NCS_HUES[from], b = NCS_HUES[to];
+    return {
+      r: a.r + (b.r - a.r) * pct,
+      g: a.g + (b.g - a.g) * pct,
+      b: a.b + (b.b - a.b) * pct,
+    };
+  }
+  function ncsToRgb(parsed) {
+    const w = (100 - parsed.blackness - parsed.chromaticness) / 100;
+    const k = parsed.blackness / 100;
+    const c = parsed.hue === "N" ? 0 : parsed.chromaticness / 100;
+    const h = ncsHueToRgb(parsed.hue);
+    const wAdjusted = parsed.hue === "N" ? (100 - parsed.blackness) / 100 : w;
+    return {
+      r: clamp(wAdjusted * 255 + k * 0 + c * h.r),
+      g: clamp(wAdjusted * 255 + k * 0 + c * h.g),
+      b: clamp(wAdjusted * 255 + k * 0 + c * h.b),
+    };
+  }
+
+  /* -------------------------------------------------------------------- *
+   * State (owned set persisted in localStorage)
+   * -------------------------------------------------------------------- */
+  const STORAGE_KEY = "tombow.owned.v1";
+  let owned = new Set();
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) owned = new Set(JSON.parse(raw));
+  } catch (e) { /* ignore */ }
+  function persist() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify([...owned]));
+    updateStats();
+  }
+
+  let filter = "all";
+  let query = "";
+  let highlightedNumber = null;
+
+  /* -------------------------------------------------------------------- *
+   * Render: grid
+   * -------------------------------------------------------------------- */
+  const grid = document.getElementById("grid");
+  const emptyMsg = document.getElementById("empty");
+
+  function keyFor(c) { return c.number + "::" + c.name; }
+
+  function renderGrid() {
+    const q = query.trim().toLowerCase();
+    const items = DATA.filter(c => {
+      if (filter === "owned" && !owned.has(keyFor(c))) return false;
+      if (filter === "missing" && owned.has(keyFor(c))) return false;
+      if (q && !(c.number.toLowerCase().includes(q) || c.name.toLowerCase().includes(q))) return false;
+      return true;
+    });
+
+    grid.innerHTML = "";
+    if (!items.length) {
+      emptyMsg.hidden = false;
+      return;
+    }
+    emptyMsg.hidden = true;
+
+    const frag = document.createDocumentFragment();
+    for (const c of items) {
+      const k = keyFor(c);
+      const isOwned = owned.has(k);
+      const isMatch = highlightedNumber === c.number;
+      const card = document.createElement("button");
+      card.type = "button";
+      card.className = "card" + (isOwned ? " owned" : "") + (isMatch ? " match-highlight" : "");
+      card.setAttribute("data-key", k);
+      card.setAttribute("aria-pressed", isOwned ? "true" : "false");
+      card.innerHTML = `
+        <div class="swatch" style="background:${c.hex}">
+          <span class="check" aria-hidden="true">✓</span>
+        </div>
+        <div class="meta">
+          <div class="num">${c.number}</div>
+          <div class="name">${c.name}</div>
+        </div>
+      `;
+      card.addEventListener("click", () => {
+        if (owned.has(k)) owned.delete(k); else owned.add(k);
+        persist();
+        renderGrid();
+        renderMatches();
+      });
+      frag.appendChild(card);
+    }
+    grid.appendChild(frag);
+  }
+
+  function updateStats() {
+    document.getElementById("ownedCount").textContent = owned.size;
+    const pct = Math.round((owned.size / DATA.length) * 100);
+    document.getElementById("progressBar").style.width = pct + "%";
+  }
+
+  /* -------------------------------------------------------------------- *
+   * Render: matcher
+   * -------------------------------------------------------------------- */
+  const picker = document.getElementById("picker");
+  const hexInput = document.getElementById("hexInput");
+  const ncsInput = document.getElementById("ncsInput");
+  const rSlider = document.getElementById("rSlider");
+  const gSlider = document.getElementById("gSlider");
+  const bSlider = document.getElementById("bSlider");
+  const rVal = document.getElementById("rVal");
+  const gVal = document.getElementById("gVal");
+  const bVal = document.getElementById("bVal");
+  const previewSwatch = document.getElementById("previewSwatch");
+  const previewLabel = document.getElementById("previewLabel");
+  const matchList = document.getElementById("matchList");
+
+  let currentColor = { r: 255, g: 209, b: 168 };
+
+  function setColor(rgb, source) {
+    currentColor = { r: clamp(rgb.r), g: clamp(rgb.g), b: clamp(rgb.b) };
+    const hex = rgbToHex(currentColor.r, currentColor.g, currentColor.b);
+    if (source !== "picker") picker.value = hex;
+    if (source !== "hex") hexInput.value = hex;
+    if (source !== "ncs") ncsInput.classList.remove("invalid");
+    if (source !== "slider") {
+      rSlider.value = currentColor.r;
+      gSlider.value = currentColor.g;
+      bSlider.value = currentColor.b;
+    }
+    rVal.textContent = currentColor.r;
+    gVal.textContent = currentColor.g;
+    bVal.textContent = currentColor.b;
+    previewSwatch.style.background = hex;
+    previewLabel.textContent = hex;
+    previewLabel.style.color = readableTextColor(hex);
+    previewLabel.style.background = luminance(hex) > 0.55 ? "rgba(0,0,0,.06)" : "rgba(255,255,255,.85)";
+    renderMatches();
+  }
+  function clamp(v) { v = Math.round(+v); return v < 0 ? 0 : v > 255 ? 255 : v; }
+
+  function renderMatches() {
+    const lab = rgbToLab(currentColor);
+    const ranked = DATA
+      .map(c => ({ c, d: deltaE(lab, c.lab) }))
+      .sort((a, b) => a.d - b.d)
+      .slice(0, 5);
+
+    highlightedNumber = ranked[0]?.c.number ?? null;
+
+    matchList.innerHTML = "";
+    ranked.forEach((m, i) => {
+      const k = keyFor(m.c);
+      const isOwned = owned.has(k);
+      const el = document.createElement("div");
+      el.className = "match-card" + (i === 0 ? " best" : "") + (isOwned ? " owned" : "");
+      el.innerHTML = `
+        <div class="swatch" style="background:${m.c.hex}"></div>
+        <div class="meta">
+          <span class="num">ABT ${m.c.number}</span>
+          <span class="name">${m.c.name}</span>
+        </div>
+        <div class="delta">
+          <b>ΔE ${m.d.toFixed(1)}</b>
+          ${m.c.hex}
+        </div>
+      `;
+      el.addEventListener("click", () => {
+        const card = grid.querySelector(`.card[data-key="${k}"]`);
+        if (card) card.scrollIntoView({ behavior: "smooth", block: "center" });
+      });
+      matchList.appendChild(el);
+    });
+
+    /* re-render grid to update highlight ring */
+    renderGrid();
+  }
+
+  /* -------------------------------------------------------------------- *
+   * Wire up inputs
+   * -------------------------------------------------------------------- */
+  picker.addEventListener("input", e => setColor(hexToRgb(e.target.value), "picker"));
+  hexInput.addEventListener("input", e => {
+    const v = e.target.value.trim();
+    if (/^#?[0-9a-fA-F]{6}$/.test(v)) {
+      setColor(hexToRgb(v.startsWith("#") ? v : "#" + v), "hex");
+    }
+  });
+  [rSlider, gSlider, bSlider].forEach(s => {
+    s.addEventListener("input", () => {
+      setColor({ r: +rSlider.value, g: +gSlider.value, b: +bSlider.value }, "slider");
+    });
+  });
+  ncsInput.addEventListener("input", e => {
+    const raw = e.target.value;
+    if (!raw.trim()) { ncsInput.classList.remove("invalid"); return; }
+    const parsed = parseNCS(raw);
+    if (!parsed) { ncsInput.classList.add("invalid"); return; }
+    ncsInput.classList.remove("invalid");
+    setColor(ncsToRgb(parsed), "ncs");
+  });
+
+  document.querySelectorAll(".chip").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".chip").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      filter = btn.dataset.filter;
+      renderGrid();
+    });
+  });
+  document.getElementById("search").addEventListener("input", e => {
+    query = e.target.value;
+    renderGrid();
+  });
+  document.getElementById("resetBtn").addEventListener("click", () => {
+    if (!confirm("Clear all owned marks? This can't be undone.")) return;
+    owned.clear(); persist(); renderGrid(); renderMatches();
+  });
+  document.getElementById("exportBtn").addEventListener("click", () => {
+    const list = [...owned].sort();
+    const blob = new Blob([JSON.stringify(list, null, 2)], { type: "application/json" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "tombow-owned.json";
+    a.click();
+    URL.revokeObjectURL(a.href);
+  });
+
+  const validKeys = new Set(DATA.map(keyFor));
+  document.getElementById("importBtn").addEventListener("click", () => {
+    document.getElementById("importFile").click();
+  });
+  document.getElementById("importFile").addEventListener("change", async (e) => {
+    const file = e.target.files && e.target.files[0];
+    e.target.value = "";
+    if (!file) return;
+    try {
+      const text = await file.text();
+      const parsed = JSON.parse(text);
+      if (!Array.isArray(parsed) || !parsed.every(x => typeof x === "string")) {
+        alert("That file doesn't look like a Tombow owned list. Expected a JSON array of color codes.");
+        return;
+      }
+      const incoming = parsed.filter(k => validKeys.has(k));
+      const skipped = parsed.length - incoming.length;
+      const before = owned.size;
+      incoming.forEach(k => owned.add(k));
+      const added = owned.size - before;
+      persist(); renderGrid(); renderMatches();
+      let msg = `Imported ${added} new color${added === 1 ? "" : "s"} (${incoming.length} in file, ${incoming.length - added} already owned).`;
+      if (skipped) msg += `\n${skipped} entr${skipped === 1 ? "y" : "ies"} skipped — not a recognized color code.`;
+      alert(msg);
+    } catch (err) {
+      alert("Couldn't read that file. Make sure it's a JSON file exported from this app.");
+    }
+  });
+
+  /* -------------------------------------------------------------------- *
+   * Image color picker
+   *
+   * Two canvases:
+   *   sourceCanvas — off-screen, holds the image at its (capped) native
+   *                  resolution, used for getImageData reads.
+   *   imageCanvas  — on-screen, displayed via CSS to fit panel width.
+   *
+   * Cursor coords are mapped from imageCanvas's CSS rect to source pixels.
+   * -------------------------------------------------------------------- */
+  const imageInput = document.getElementById("imageInput");
+  const uploadBtn = document.getElementById("uploadBtn");
+  const imageStage = document.getElementById("imageStage");
+  const imageCanvas = document.getElementById("imageCanvas");
+  const magnifier = document.getElementById("magnifier");
+  const magCanvas = document.getElementById("magCanvas");
+  const clearImageBtn = document.getElementById("clearImageBtn");
+  const imageStatus = document.getElementById("imageStatus");
+  const pickedPip = document.getElementById("pickedPip");
+  const pickedText = document.getElementById("pickedText");
+
+  let sourceCanvas = null, sourceCtx = null;
+
+  function loadImageFile(file) {
+    if (!file || !file.type.startsWith("image/")) return;
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      const maxDim = 2048;
+      const scale = Math.min(1, maxDim / Math.max(img.naturalWidth, img.naturalHeight));
+      const w = Math.max(1, Math.round(img.naturalWidth * scale));
+      const h = Math.max(1, Math.round(img.naturalHeight * scale));
+
+      sourceCanvas = document.createElement("canvas");
+      sourceCanvas.width = w; sourceCanvas.height = h;
+      sourceCtx = sourceCanvas.getContext("2d", { willReadFrequently: true });
+      sourceCtx.drawImage(img, 0, 0, w, h);
+
+      imageCanvas.width = w; imageCanvas.height = h;
+      imageCanvas.getContext("2d").drawImage(sourceCanvas, 0, 0);
+
+      uploadBtn.hidden = true;
+      imageStage.hidden = false;
+      clearImageBtn.hidden = false;
+      imageStatus.hidden = false;
+      pickedText.textContent = "Click anywhere on the image to pick a pixel";
+      pickedPip.style.background = "transparent";
+    };
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      alert("Couldn't load that image.");
+    };
+    img.src = url;
+  }
+
+  function sourceCoordsFromEvent(e) {
+    const rect = imageCanvas.getBoundingClientRect();
+    const cx = e.clientX - rect.left, cy = e.clientY - rect.top;
+    const sx = cx / rect.width  * sourceCanvas.width;
+    const sy = cy / rect.height * sourceCanvas.height;
+    return { cx, cy, sx, sy, rect };
+  }
+
+  function pickPixel(sx, sy) {
+    const ix = Math.max(0, Math.min(sourceCanvas.width - 1, Math.floor(sx)));
+    const iy = Math.max(0, Math.min(sourceCanvas.height - 1, Math.floor(sy)));
+    const d = sourceCtx.getImageData(ix, iy, 1, 1).data;
+    return { r: d[0], g: d[1], b: d[2], x: ix, y: iy };
+  }
+
+  function drawMagnifier(sx, sy) {
+    const ctx = magCanvas.getContext("2d");
+    const span = 12; // 12 source pixels visible across magnifier
+    ctx.imageSmoothingEnabled = false;
+    ctx.clearRect(0, 0, magCanvas.width, magCanvas.height);
+    ctx.drawImage(
+      sourceCanvas,
+      sx - span / 2, sy - span / 2, span, span,
+      0, 0, magCanvas.width, magCanvas.height
+    );
+  }
+
+  function positionMagnifier(cx, cy, rect) {
+    const mw = magnifier.offsetWidth || 96;
+    const off = 18;
+    let mx = cx + off, my = cy - mw - off;
+    if (mx + mw > rect.width) mx = cx - mw - off;
+    if (my < 0) my = cy + off;
+    if (mx < 0) mx = 0;
+    if (my + mw > rect.height) my = rect.height - mw;
+    magnifier.style.left = mx + "px";
+    magnifier.style.top  = my + "px";
+  }
+
+  imageInput.addEventListener("change", e => {
+    if (e.target.files[0]) loadImageFile(e.target.files[0]);
+  });
+  ["dragenter", "dragover"].forEach(ev =>
+    uploadBtn.addEventListener(ev, e => { e.preventDefault(); uploadBtn.classList.add("dragging"); })
+  );
+  ["dragleave", "drop"].forEach(ev =>
+    uploadBtn.addEventListener(ev, e => { e.preventDefault(); uploadBtn.classList.remove("dragging"); })
+  );
+  uploadBtn.addEventListener("drop", e => {
+    if (e.dataTransfer.files.length) loadImageFile(e.dataTransfer.files[0]);
+  });
+
+  imageCanvas.addEventListener("pointermove", e => {
+    if (!sourceCanvas) return;
+    const { cx, cy, sx, sy, rect } = sourceCoordsFromEvent(e);
+    drawMagnifier(sx, sy);
+    positionMagnifier(cx, cy, rect);
+    magnifier.hidden = false;
+  });
+  imageCanvas.addEventListener("pointerleave", () => { magnifier.hidden = true; });
+  imageCanvas.addEventListener("click", e => {
+    if (!sourceCanvas) return;
+    const { sx, sy } = sourceCoordsFromEvent(e);
+    const px = pickPixel(sx, sy);
+    setColor({ r: px.r, g: px.g, b: px.b }, "image");
+    const hex = rgbToHex(px.r, px.g, px.b);
+    pickedPip.style.background = hex;
+    pickedText.textContent = `${hex} · pixel (${px.x}, ${px.y})`;
+  });
+
+  clearImageBtn.addEventListener("click", () => {
+    imageInput.value = "";
+    sourceCanvas = null; sourceCtx = null;
+    imageStage.hidden = true;
+    uploadBtn.hidden = false;
+    clearImageBtn.hidden = true;
+    imageStatus.hidden = true;
+    magnifier.hidden = true;
+  });
+
+  /* -------------------------------------------------------------------- *
+   * Collection modal
+   * -------------------------------------------------------------------- */
+  const modal = document.getElementById("collectionModal");
+  const modalSub = document.getElementById("modalSub");
+  const modalMeta = document.getElementById("modalMeta");
+  const collectionBody = document.getElementById("collectionBody");
+
+  function ownedSorted() {
+    return DATA
+      .filter(c => owned.has(keyFor(c)))
+      .slice()
+      .sort((a, b) => a.number.localeCompare(b.number, undefined, { numeric: true }));
+  }
+
+  function renderCollection() {
+    const items = ownedSorted();
+    modalSub.textContent = `${items.length} of ${DATA.length}`;
+    modalMeta.textContent = items.length
+      ? `${items.length} pen${items.length === 1 ? "" : "s"} · ${Math.round(items.length / DATA.length * 100)}% complete`
+      : "";
+    collectionBody.innerHTML = "";
+    if (!items.length) {
+      collectionBody.innerHTML = `<div class="empty-collection">You haven't marked any colors yet.<br>Click any swatch in the grid to add it to your collection.</div>`;
+      return;
+    }
+    const frag = document.createDocumentFragment();
+    for (const c of items) {
+      const k = keyFor(c);
+      const row = document.createElement("div");
+      row.className = "row";
+      row.innerHTML = `
+        <div class="sw" style="background:${c.hex}"></div>
+        <div class="num">ABT ${c.number}</div>
+        <div class="nm">${c.name}</div>
+        <div class="hx">${c.hex}</div>
+        <button class="rm" title="Remove from collection" data-key="${k}">×</button>
+      `;
+      row.querySelector(".rm").addEventListener("click", (ev) => {
+        ev.stopPropagation();
+        owned.delete(k);
+        persist();
+        renderGrid();
+        renderMatches();
+        renderCollection();
+      });
+      frag.appendChild(row);
+    }
+    collectionBody.appendChild(frag);
+  }
+
+  function openModal() { renderCollection(); modal.classList.add("open"); }
+  function closeModal() { modal.classList.remove("open"); }
+
+  document.getElementById("collectionBtn").addEventListener("click", openModal);
+  document.getElementById("modalClose").addEventListener("click", closeModal);
+  modal.addEventListener("click", e => { if (e.target === modal) closeModal(); });
+  document.addEventListener("keydown", e => { if (e.key === "Escape") closeModal(); });
+
+  document.getElementById("printListBtn").addEventListener("click", () => window.print());
+  document.getElementById("copyListBtn").addEventListener("click", async () => {
+    const items = ownedSorted();
+    const text = items.map(c => `ABT ${c.number}\t${c.name}\t${c.hex}`).join("\n");
+    try {
+      await navigator.clipboard.writeText(text);
+      const btn = document.getElementById("copyListBtn");
+      const orig = btn.textContent;
+      btn.textContent = "Copied!";
+      setTimeout(() => { btn.textContent = orig; }, 1200);
+    } catch (e) {
+      alert("Couldn't copy to clipboard. Here's the list:\n\n" + text);
+    }
+  });
+
+  /* Initial paint */
+  updateStats();
+  setColor(currentColor, "init");
+</script>
+</body>
+</html>
