@@ -1022,28 +1022,36 @@
   const matchList = document.getElementById("matchList");
 
   let currentColor = { r: 255, g: 209, b: 168 };
+  let _settingColor = false;
 
   function setColor(rgb, source) {
-    currentColor = { r: clamp(rgb.r), g: clamp(rgb.g), b: clamp(rgb.b) };
-    const hex = rgbToHex(currentColor.r, currentColor.g, currentColor.b);
-    if (source !== "picker") picker.value = hex;
-    if (source !== "hex") hexInput.value = hex;
-    if (source !== "ncs") ncsInput.classList.remove("invalid");
-    if (source !== "slider") {
-      rSlider.value = currentColor.r;
-      gSlider.value = currentColor.g;
-      bSlider.value = currentColor.b;
+    if (_settingColor) return;
+    _settingColor = true;
+    try {
+      currentColor = { r: clamp(rgb.r), g: clamp(rgb.g), b: clamp(rgb.b) };
+      const hex = rgbToHex(currentColor.r, currentColor.g, currentColor.b);
+      if (source !== "picker") picker.value = hex;
+      if (source !== "hex") hexInput.value = hex;
+      if (source !== "ncs") ncsInput.classList.remove("invalid");
+      if (source !== "ral") ralInput.classList.remove("invalid");
+      if (source !== "slider") {
+        rSlider.value = currentColor.r;
+        gSlider.value = currentColor.g;
+        bSlider.value = currentColor.b;
+      }
+      if (source !== "rgb") {
+        rVal.value = currentColor.r;
+        gVal.value = currentColor.g;
+        bVal.value = currentColor.b;
+      }
+      previewSwatch.style.background = hex;
+      previewLabel.textContent = hex;
+      previewLabel.style.color = readableTextColor(hex);
+      previewLabel.style.background = luminance(hex) > 0.55 ? "rgba(0,0,0,.06)" : "rgba(255,255,255,.85)";
+      renderMatches();
+    } finally {
+      _settingColor = false;
     }
-    if (source !== "rgb") {
-      rVal.value = currentColor.r;
-      gVal.value = currentColor.g;
-      bVal.value = currentColor.b;
-    }
-    previewSwatch.style.background = hex;
-    previewLabel.textContent = hex;
-    previewLabel.style.color = readableTextColor(hex);
-    previewLabel.style.background = luminance(hex) > 0.55 ? "rgba(0,0,0,.06)" : "rgba(255,255,255,.85)";
-    renderMatches();
   }
   function clamp(v) { v = Math.round(+v); return v < 0 ? 0 : v > 255 ? 255 : v; }
 
@@ -1101,8 +1109,16 @@
   });
   [rVal, gVal, bVal].forEach(el => {
     el.addEventListener("input", () => {
-      const v = parseInt(el.value, 10);
-      if (!isNaN(v)) setColor({ r: +rVal.value, g: +gVal.value, b: +bVal.value }, "rgb");
+      const raw = el.value.replace(/[^0-9]/g, "");
+      if (raw !== el.value) el.value = raw;
+      if (raw === "") return;
+      const r = rVal.value === "" ? currentColor.r : parseInt(rVal.value, 10);
+      const g = gVal.value === "" ? currentColor.g : parseInt(gVal.value, 10);
+      const b = bVal.value === "" ? currentColor.b : parseInt(bVal.value, 10);
+      if (!isNaN(r) && !isNaN(g) && !isNaN(b)) setColor({ r, g, b }, "rgb");
+    });
+    el.addEventListener("blur", () => {
+      el.value = el.id === "rVal" ? currentColor.r : el.id === "gVal" ? currentColor.g : currentColor.b;
     });
   });
   ncsInput.addEventListener("input", e => {
