@@ -165,7 +165,10 @@
   }
   .slider-row .val {
     font-family: var(--mono); font-size: 12px; text-align: right;
+    width: 42px; border: 1px solid var(--line); border-radius: 4px;
+    padding: 2px 4px; background: var(--bg); color: var(--ink);
   }
+  .slider-row .val:focus { outline: 2px solid var(--accent-2); outline-offset: 1px; }
   input[type="range"] {
     -webkit-appearance: none; appearance: none;
     width: 100%; height: 6px; border-radius: 999px;
@@ -538,20 +541,27 @@
       <div class="ncs-hint">Format <b>S BBCC-HUE</b> — e.g. <b>S 0500-N</b>, <b>S 2070-Y</b>, <b>S 4030-R70B</b></div>
     </div>
 
+    <div class="input-row">
+      <label for="ralInput">RAL</label>
+      <input id="ralInput" type="text" placeholder="e.g. 1015 or RAL 5012" spellcheck="false" />
+      <span style="width:44px;height:32px;border:1px solid var(--line);border-radius:6px;display:grid;place-items:center;font-family:var(--mono);font-size:10px;color:var(--ink-soft)">RAL</span>
+      <div class="ncs-hint">RAL Classic — e.g. <b>1015</b>, <b>3020</b>, <b>5024</b>, <b>9010</b></div>
+    </div>
+
     <div class="slider-row">
       <span class="name">R</span>
       <input id="rSlider" type="range" min="0" max="255" value="255" />
-      <span class="val" id="rVal">255</span>
+      <input type="text" class="val" id="rVal" value="255" maxlength="3" inputmode="numeric" />
     </div>
     <div class="slider-row">
       <span class="name">G</span>
       <input id="gSlider" type="range" min="0" max="255" value="209" />
-      <span class="val" id="gVal">209</span>
+      <input type="text" class="val" id="gVal" value="209" maxlength="3" inputmode="numeric" />
     </div>
     <div class="slider-row">
       <span class="name">B</span>
       <input id="bSlider" type="range" min="0" max="255" value="168" />
-      <span class="val" id="bVal">168</span>
+      <input type="text" class="val" id="bVal" value="168" maxlength="3" inputmode="numeric" />
     </div>
 
     <div class="image-section">
@@ -859,6 +869,65 @@
   }
 
   /* -------------------------------------------------------------------- *
+   * RAL Classic → hex lookup (213 standard colors)
+   * -------------------------------------------------------------------- */
+  const RAL = {
+    1000:"#CDBA88",1001:"#D0B084",1002:"#D2AA6D",1003:"#F9A800",1004:"#E49E00",
+    1005:"#C89B00",1006:"#E29000",1007:"#E88C00",1011:"#AF8050",1012:"#DDAF27",
+    1013:"#E3D9C6",1014:"#DDC49A",1015:"#EADEBD",1016:"#F1DD38",1017:"#F6A950",
+    1018:"#FACA30",1019:"#A48F7A",1020:"#A08F65",1021:"#F6B600",1023:"#F7B500",
+    1024:"#BA8F4C",1026:"#FFFF00",1027:"#A77F0E",1028:"#FF9B00",1032:"#E2A300",
+    1033:"#F99A1C",1034:"#EB9B5F",1035:"#908370",1036:"#806040",1037:"#F09200",
+    2000:"#DD7907",2001:"#BE4E20",2002:"#C63927",2003:"#F67828",2004:"#E75B12",
+    2005:"#FF2300",2007:"#FFB200",2008:"#ED6B21",2009:"#E15501",2010:"#D4652F",
+    2011:"#EC7C25",2012:"#DB6A50",2013:"#954527",
+    3000:"#AB2524",3001:"#A02128",3002:"#A1232B",3003:"#8D1D2C",3004:"#701F29",
+    3005:"#5E2028",3007:"#402225",3009:"#703731",3011:"#7E292C",3012:"#CB8D73",
+    3013:"#9C322E",3014:"#D47479",3015:"#E8A0BF",3016:"#AC4034",3017:"#D3545F",
+    3018:"#D14152",3020:"#C1121C",3022:"#D56D56",3024:"#F70000",3026:"#FF0000",
+    3027:"#B42041",3028:"#CB3234",3031:"#AC323B",3032:"#711521",3033:"#B44C43",
+    4001:"#816183",4002:"#922B3E",4003:"#C4618C",4004:"#6E1C34",4005:"#76689A",
+    4006:"#902F78",4007:"#4A1F3B",4008:"#844C82",4009:"#A38995",4010:"#C63678",
+    4011:"#8773A1",4012:"#6B6880",
+    5000:"#384C70",5001:"#1F4764",5002:"#2B2C7C",5003:"#2A3756",5004:"#1D1F2A",
+    5005:"#154889",5007:"#41678D",5008:"#313C48",5009:"#2E5978",5010:"#13447C",
+    5011:"#232C3F",5012:"#3481B8",5013:"#193153",5014:"#637D96",5015:"#2874B2",
+    5017:"#0E518D",5018:"#21888F",5019:"#1A5784",5020:"#0B4151",5021:"#07737A",
+    5022:"#2F2A5A",5023:"#4D668E",5024:"#6A93B0",5025:"#296478",5026:"#102C54",
+    6000:"#3C7460",6001:"#366735",6002:"#325928",6003:"#50533C",6004:"#024442",
+    6005:"#114232",6006:"#3C392E",6007:"#2C3222",6008:"#37342A",6009:"#27352A",
+    6010:"#3E753B",6011:"#66824B",6012:"#31403D",6013:"#797C5A",6014:"#474135",
+    6015:"#3D3D36",6016:"#047243",6017:"#4B7B3A",6018:"#61993B",6019:"#B7D9B1",
+    6020:"#354733",6021:"#86A47C",6022:"#3E3B2F",6024:"#008754",6025:"#4D6F39",
+    6026:"#015D52",6027:"#84C3BE",6028:"#2D5546",6029:"#007243",6032:"#0F8558",
+    6033:"#478A84",6034:"#7FB0B2",6035:"#1C542D",6036:"#193737",6037:"#008B29",
+    6038:"#00B51A",
+    7000:"#7E8B92",7001:"#8F999F",7002:"#817863",7003:"#7A7B6D",7004:"#9EA0A1",
+    7005:"#6B716F",7006:"#756F61",7008:"#746643",7009:"#5B6259",7010:"#575D57",
+    7011:"#555D61",7012:"#596163",7013:"#555548",7015:"#51565C",7016:"#373F43",
+    7021:"#2F3234",7022:"#4B4D46",7023:"#818479",7024:"#474A50",7026:"#374447",
+    7030:"#939388",7031:"#5D6970",7032:"#B9B4A2",7033:"#818979",7034:"#939176",
+    7035:"#CBD0CC",7036:"#9A9697",7037:"#7A7B7A",7038:"#B4B8B0",7039:"#6C6960",
+    7040:"#9DA3A6",7042:"#8E9291",7043:"#4E5451",7044:"#BDBDB2",7045:"#91969A",
+    7046:"#82898E",7047:"#CFD0CF",7048:"#888175",
+    8000:"#887142",8001:"#9C6B30",8002:"#7B5141",8003:"#80542F",8004:"#8F4E35",
+    8007:"#6F4A2F",8008:"#6F4F28",8011:"#5A3A29",8012:"#673831",8014:"#49392D",
+    8015:"#633A34",8016:"#4C2F27",8017:"#44322D",8019:"#3F3A3A",8022:"#1A1718",
+    8023:"#A65E2F",8024:"#795038",8025:"#755C49",8028:"#4E3B31",8029:"#7F4031",
+    9001:"#FDF4E3",9002:"#E7EBDA",9003:"#F4F4F4",9004:"#2E3032",9005:"#0A0A0D",
+    9006:"#A5A8A6",9007:"#8F8F8C",9010:"#F7F5E8",9011:"#292C2F",9012:"#FFFDE6",
+    9016:"#F7FBF5",9017:"#1E2022",9018:"#CFD3CD",9022:"#9C9C9C",9023:"#7E8182",
+  };
+
+  function parseRAL(input) {
+    const s = (input || "").trim().toUpperCase().replace(/^RAL\s*/i, "");
+    const m = s.match(/^(\d{4})$/);
+    if (!m) return null;
+    const hex = RAL[parseInt(m[1], 10)];
+    return hex ? hexToRgb(hex) : null;
+  }
+
+  /* -------------------------------------------------------------------- *
    * State (owned set persisted in localStorage)
    * -------------------------------------------------------------------- */
   const STORAGE_KEY = "tombow.owned.v1";
@@ -965,9 +1034,11 @@
       gSlider.value = currentColor.g;
       bSlider.value = currentColor.b;
     }
-    rVal.textContent = currentColor.r;
-    gVal.textContent = currentColor.g;
-    bVal.textContent = currentColor.b;
+    if (source !== "rgb") {
+      rVal.value = currentColor.r;
+      gVal.value = currentColor.g;
+      bVal.value = currentColor.b;
+    }
     previewSwatch.style.background = hex;
     previewLabel.textContent = hex;
     previewLabel.style.color = readableTextColor(hex);
@@ -1028,6 +1099,12 @@
       setColor({ r: +rSlider.value, g: +gSlider.value, b: +bSlider.value }, "slider");
     });
   });
+  [rVal, gVal, bVal].forEach(el => {
+    el.addEventListener("input", () => {
+      const v = parseInt(el.value, 10);
+      if (!isNaN(v)) setColor({ r: +rVal.value, g: +gVal.value, b: +bVal.value }, "rgb");
+    });
+  });
   ncsInput.addEventListener("input", e => {
     const raw = e.target.value;
     if (!raw.trim()) { ncsInput.classList.remove("invalid"); return; }
@@ -1035,6 +1112,15 @@
     if (!parsed) { ncsInput.classList.add("invalid"); return; }
     ncsInput.classList.remove("invalid");
     setColor(ncsToRgb(parsed), "ncs");
+  });
+  const ralInput = document.getElementById("ralInput");
+  ralInput.addEventListener("input", e => {
+    const raw = e.target.value;
+    if (!raw.trim()) { ralInput.classList.remove("invalid"); return; }
+    const rgb = parseRAL(raw);
+    if (!rgb) { ralInput.classList.add("invalid"); return; }
+    ralInput.classList.remove("invalid");
+    setColor(rgb, "ral");
   });
 
   document.querySelectorAll(".chip").forEach(btn => {
