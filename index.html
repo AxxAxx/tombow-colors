@@ -512,11 +512,6 @@
     font-size: 12px; color: var(--ink-soft); margin-top: 16px;
     line-height: 1.5;
   }
-  .sync-loaded {
-    padding: 10px 14px; border-radius: var(--radius-sm);
-    font-size: 13px; margin-bottom: 12px;
-    background: #edf7ed; color: #1a5c1a;
-  }
 </style>
 </head>
 <body>
@@ -1439,181 +1434,89 @@
   });
 
   /* -------------------------------------------------------------------- *
-   * Cloud Sync — jsonblob.com (free, no signup).
-   * PIN protects saves; anyone with the link can view.
+   * Sync — encode owned collection in the URL hash so you can open the
+   * same link on any device.  No servers, no accounts, no setup.
    * -------------------------------------------------------------------- */
-  const SYNC_KEY = "tombow.sync.v1";
-  let sync = null;
-  try { const r = localStorage.getItem(SYNC_KEY); if (r) sync = JSON.parse(r); } catch(e) {}
-  let syncTimer = null;
-
-  async function sha256(s) {
-    const b = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s));
-    return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2,"0")).join("");
-  }
-
-  const BLOB = "https://jsonblob.com/api/jsonBlob";
-
-  async function cloudCreate(pin) {
-    const ph = await sha256(pin);
-    const r = await fetch(BLOB, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "Accept": "application/json" },
-      body: JSON.stringify({ v: 1, pin: ph, owned: [...owned] })
+  function encodeOwned() {
+    const bits = new Uint8Array(Math.ceil(DATA.length / 8));
+    DATA.forEach((c, i) => {
+      if (owned.has(keyFor(c))) bits[i >> 3] |= (1 << (i & 7));
     });
-    if (!r.ok) throw new Error("Server error " + r.status);
-    const loc = r.headers.get("Location") || r.headers.get("X-jsonblob-id") || "";
-    const id = loc.replace(/.*\//, ""); // extract UUID from path
-    if (!id) throw new Error("No ID returned");
-    sync = { id, pin };
-    localStorage.setItem(SYNC_KEY, JSON.stringify(sync));
-    return id;
+    let bin = "";
+    bits.forEach(b => { bin += String.fromCharCode(b); });
+    return btoa(bin).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
   }
 
-  async function cloudRead(id) {
-    const r = await fetch(BLOB + "/" + id, { headers: { "Accept": "application/json" } });
-    if (!r.ok) throw new Error("Collection not found");
-    return r.json();
-  }
-
-  async function cloudWrite() {
-    if (!sync?.id || !sync?.pin) return;
-    const ph = await sha256(sync.pin);
-    const r = await fetch(BLOB + "/" + sync.id, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json", "Accept": "application/json" },
-      body: JSON.stringify({ v: 1, pin: ph, owned: [...owned] })
+  function decodeOwned(str) {
+    str = str.replace(/-/g, "+").replace(/_/g, "/");
+    while (str.length % 4) str += "=";
+    const bin = atob(str);
+    const result = new Set();
+    DATA.forEach((c, i) => {
+      if (bin.charCodeAt(i >> 3) & (1 << (i & 7))) result.add(keyFor(c));
     });
-    if (!r.ok) throw new Error("Save failed");
+    return result;
   }
 
-  function scheduleSync() {
-    if (!sync?.id || !sync?.pin) return;
-    if (syncTimer) clearTimeout(syncTimer);
-    syncTimer = setTimeout(() => cloudWrite().catch(e => console.error("sync:", e)), 1500);
-  }
+  function scheduleSync() {} // no-op, sync happens when modal is opened
 
-  function applyCloud(data) {
-    const v = (data.owned || []).filter(k => validKeys.has(k));
-    owned = new Set(v);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify([...owned]));
-    updateStats();
-    renderGrid();
-  }
+  // Load collection from URL hash on page load
+  (function loadFromHash() {
+    const m = location.hash.match(/[#&]c=([A-Za-z0-9_-]+)/);
+    if (!m) return;
+    try {
+      const decoded = decodeOwned(m[1]);
+      if (decoded.size > 0) {
+        owned = decoded;
+        localStorage.setItem(STORAGE_KEY, JSON.stringify([...owned]));
+        updateStats();
+      }
+    } catch (e) { console.error("Bad hash:", e); }
+  })();
 
-  // Check URL hash for blob ID (UUID format)
-  let pendingBlobId = null;
-  { const m = location.hash.match(/[#&]s=([0-9a-f-]{36})/); if (m) pendingBlobId = m[1]; }
+  function buildSyncUrl() {
+    return location.origin + location.pathname + (owned.size ? "#c=" + encodeOwned() : "");
+  }
 
   /* ---- Sync modal ---- */
   const syncModal = document.getElementById("syncModal");
   const syncBody = document.getElementById("syncBody");
 
-  function renderSyncActive() {
-    const url = location.origin + location.pathname + "#s=" + sync.id;
-    syncBody.innerHTML =
-      '<div class="sync-loaded">Cloud sync active — changes save automatically.</div>' +
-      '<p style="margin:12px 0 4px;font-size:12px;font-weight:600;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.03em">Share link</p>' +
-      '<div class="sync-url-box">' + url + '</div>' +
-      '<div class="sync-actions">' +
-        '<button class="btn" id="syncCopy">Copy link</button>' +
-        (navigator.share ? '<button class="btn" id="syncShare">Share</button>' : '') +
-      '</div>' +
-      '<div class="sync-actions" style="margin-top:8px">' +
-        '<button class="btn" id="syncReload">Reload from cloud</button>' +
-        '<button class="btn" id="syncOff" style="color:var(--accent);border-color:var(--accent)">Disconnect</button>' +
-      '</div>' +
-      '<p class="sync-note">Open the link on your phone and enter your PIN to enable saving. Anyone with the link can view your collection but cannot save changes without your PIN.</p>';
-
-    document.getElementById("syncCopy").onclick = async () => {
-      try { await navigator.clipboard.writeText(url);
-        const b = document.getElementById("syncCopy"); b.textContent = "Copied!";
-        setTimeout(() => { b.textContent = "Copy link"; }, 1500);
-      } catch(e) { prompt("Copy this link:", url); }
-    };
-    document.getElementById("syncShare")?.addEventListener("click", () =>
-      navigator.share({ title: "My Tombow Collection", url }).catch(() => {}));
-    document.getElementById("syncReload").onclick = async () => {
-      try { const d = await cloudRead(sync.id); applyCloud(d);
-        alert("Reloaded " + owned.size + " colors from cloud.");
-      } catch(e) { alert("Reload failed: " + e.message); }
-    };
-    document.getElementById("syncOff").onclick = () => {
-      if (!confirm("Disconnect? Local data stays but won't sync.")) return;
-      sync = null; localStorage.removeItem(SYNC_KEY);
-      history.replaceState(null, "", location.pathname + location.search);
-      renderSyncNew();
-    };
-  }
-
-  function renderSyncNew() {
-    syncBody.innerHTML =
-      '<p style="margin:0 0 16px;font-size:14px">Save your collection to the cloud. No account needed.</p>' +
-      '<p style="margin:0 0 4px;font-size:12px;font-weight:600;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.03em">Choose a PIN (4+ characters)</p>' +
-      '<input type="password" id="syncPin" placeholder="PIN" style="width:100%;padding:8px 10px;font-size:14px;border:1px solid var(--line);border-radius:var(--radius-sm);font-family:var(--mono);background:var(--bg)" />' +
-      '<p style="font-size:12px;color:var(--ink-soft);margin:4px 0 16px">You\'ll need this PIN on your other devices to save changes.</p>' +
-      '<button class="btn" id="syncCreate" style="width:100%;text-align:center">Save to cloud</button>' +
-      '<p class="sync-note">Your collection is stored at jsonblob.com (free, no signup). Anyone with the share link can view it, but saving requires your PIN.</p>';
-
-    document.getElementById("syncCreate").onclick = async () => {
-      const pin = document.getElementById("syncPin").value;
-      if (pin.length < 4) { alert("PIN must be at least 4 characters."); return; }
-      const btn = document.getElementById("syncCreate");
-      btn.textContent = "Saving…"; btn.disabled = true;
-      try { await cloudCreate(pin); renderSyncActive(); }
-      catch(e) {
-        if (e.message === "Failed to fetch") {
-          alert("Could not reach the sync server.\n\nThis is usually caused by an ad blocker or privacy extension. Try disabling it for this site, then try again.");
-        } else { alert("Failed: " + e.message); }
-        btn.textContent = "Save to cloud"; btn.disabled = false;
-      }
-    };
-  }
-
-  function renderSyncConnect(blobId) {
-    syncBody.innerHTML =
-      '<div class="sync-loaded">Collection loaded from link.</div>' +
-      '<p style="margin:0 0 16px;font-size:14px">Enter your PIN to enable saving changes from this device.</p>' +
-      '<p style="margin:0 0 4px;font-size:12px;font-weight:600;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.03em">PIN</p>' +
-      '<input type="password" id="syncConnPin" placeholder="PIN" style="width:100%;padding:8px 10px;font-size:14px;border:1px solid var(--line);border-radius:var(--radius-sm);font-family:var(--mono);background:var(--bg)" />' +
-      '<div class="sync-actions" style="margin-top:12px">' +
-        '<button class="btn" id="syncConn">Connect</button>' +
-      '</div>' +
-      '<p class="sync-note">Without the PIN you can still view the collection, but changes won\'t sync to the cloud.</p>';
-
-    document.getElementById("syncConn").onclick = async () => {
-      const pin = document.getElementById("syncConnPin").value;
-      if (!pin) { alert("Enter the PIN."); return; }
-      try {
-        const d = await cloudRead(blobId);
-        const ph = await sha256(pin);
-        if (d.pin !== ph) { alert("Wrong PIN."); return; }
-        sync = { id: blobId, pin };
-        localStorage.setItem(SYNC_KEY, JSON.stringify(sync));
-        applyCloud(d);
-        renderSyncActive();
-      } catch(e) { alert("Failed: " + e.message); }
-    };
-  }
-
   function openSyncModal() {
-    if (sync?.id) renderSyncActive();
-    else if (pendingBlobId) renderSyncConnect(pendingBlobId);
-    else renderSyncNew();
+    const url = buildSyncUrl();
+    syncBody.innerHTML =
+      (owned.size === 0
+        ? '<p style="margin:0 0 12px;font-size:14px;color:var(--ink-soft)">Mark some colors as owned first, then come back here to get a link you can open on your phone.</p>'
+        : '<p style="margin:0 0 12px;font-size:14px">Copy this link and open it on your phone to load your collection.</p>' +
+          '<div class="sync-url-box" id="syncUrlBox">' + url.replace(/</g, "&lt;") + '</div>' +
+          '<div class="sync-actions">' +
+            '<button class="btn" id="syncCopyBtn">Copy link</button>' +
+            (navigator.share ? '<button class="btn" id="syncShareBtn">Share</button>' : "") +
+          '</div>') +
+      '<p class="sync-note">Your ' + owned.size + ' owned color' + (owned.size === 1 ? " is" : "s are") +
+      ' encoded in the link. No account needed. Open the link on any device to load your collection. ' +
+      'Nobody can change your saved collection — the link is a snapshot of what you own right now.</p>';
+
     syncModal.classList.add("open");
+
+    document.getElementById("syncCopyBtn")?.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(url);
+        const b = document.getElementById("syncCopyBtn");
+        b.textContent = "Copied!";
+        setTimeout(() => { b.textContent = "Copy link"; }, 1500);
+      } catch (e) { prompt("Copy this link:", url); }
+    });
+    document.getElementById("syncShareBtn")?.addEventListener("click", () => {
+      navigator.share({ title: "My Tombow Collection", url }).catch(() => {});
+    });
   }
+
   function closeSyncModal() { syncModal.classList.remove("open"); }
 
   document.getElementById("syncBtn").addEventListener("click", openSyncModal);
   document.getElementById("syncClose").addEventListener("click", closeSyncModal);
   syncModal.addEventListener("click", e => { if (e.target === syncModal) closeSyncModal(); });
-
-  // Auto-load from cloud on startup
-  if (pendingBlobId && !sync) {
-    cloudRead(pendingBlobId).then(d => { applyCloud(d); }).catch(() => {});
-  } else if (sync?.id) {
-    cloudRead(sync.id).then(d => { applyCloud(d); }).catch(() => {});
-  }
 
   /* Initial paint */
   updateStats();
