@@ -1462,7 +1462,8 @@
       body: JSON.stringify({ v: 1, pin: ph, owned: [...owned] })
     });
     if (!r.ok) throw new Error("Server error " + r.status);
-    const id = r.headers.get("Location")?.split("/").pop();
+    const loc = r.headers.get("Location") || r.headers.get("X-jsonblob-id") || "";
+    const id = loc.replace(/.*\//, ""); // extract UUID from path
     if (!id) throw new Error("No ID returned");
     sync = { id, pin };
     localStorage.setItem(SYNC_KEY, JSON.stringify(sync));
@@ -1500,9 +1501,9 @@
     renderGrid();
   }
 
-  // Check URL hash for blob ID
+  // Check URL hash for blob ID (UUID format)
   let pendingBlobId = null;
-  { const m = location.hash.match(/[#&]s=(\d+)/); if (m) pendingBlobId = m[1]; }
+  { const m = location.hash.match(/[#&]s=([0-9a-f-]{36})/); if (m) pendingBlobId = m[1]; }
 
   /* ---- Sync modal ---- */
   const syncModal = document.getElementById("syncModal");
@@ -1560,7 +1561,12 @@
       const btn = document.getElementById("syncCreate");
       btn.textContent = "Saving…"; btn.disabled = true;
       try { await cloudCreate(pin); renderSyncActive(); }
-      catch(e) { alert("Failed: " + e.message); btn.textContent = "Save to cloud"; btn.disabled = false; }
+      catch(e) {
+        if (e.message === "Failed to fetch") {
+          alert("Could not reach the sync server.\n\nThis is usually caused by an ad blocker or privacy extension. Try disabling it for this site, then try again.");
+        } else { alert("Failed: " + e.message); }
+        btn.textContent = "Save to cloud"; btn.disabled = false;
+      }
     };
   }
 
