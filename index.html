@@ -339,7 +339,7 @@
     font-family: var(--mono); font-size: 13px;
   }
   .search:focus { outline: 2px solid var(--accent-2); outline-offset: 1px; }
-  .toolbar .actions { margin-left: auto; display: flex; gap: 8px; }
+  .toolbar .actions { margin-left: auto; display: flex; flex-wrap: wrap; gap: 8px; }
   .btn {
     background: #fff; border: 1px solid var(--line); padding: 7px 12px;
     border-radius: 999px; font: inherit; font-size: 12px;
@@ -497,84 +497,26 @@
   footer a { color: var(--ink-soft); }
 
   /* Sync UI */
-  .sync-indicator {
-    font-family: var(--mono); font-size: 11px; color: var(--ink-soft);
-    display: flex; align-items: center; gap: 6px;
-    margin-left: 8px; white-space: nowrap;
-  }
-  .sync-indicator .dot {
-    width: 7px; height: 7px; border-radius: 50%;
-    background: #aaa; flex-shrink: 0;
-  }
-  .sync-indicator .dot.ok { background: #2a8a4a; }
-  .sync-indicator .dot.err { background: var(--accent); }
-  .sync-indicator .dot.busy { background: #e0a020; animation: pulse .8s infinite alternate; }
-  @keyframes pulse { to { opacity: .4; } }
-
   #syncModal .modal { max-width: 440px; }
   #syncModal .body { padding: 20px 24px; }
-  .sync-section { margin-bottom: 16px; }
-  .sync-section:last-child { margin-bottom: 0; }
-  .sync-section label {
-    display: block; font-size: 12px; font-weight: 600;
-    letter-spacing: .03em; color: var(--ink-soft);
-    margin-bottom: 4px; text-transform: uppercase;
-  }
-  .sync-section input[type="text"],
-  .sync-section input[type="password"] {
-    width: 100%; padding: 8px 10px; font-size: 14px;
+  .sync-url-box {
+    font-family: var(--mono); font-size: 12px;
+    padding: 10px 12px; background: var(--bg);
     border: 1px solid var(--line); border-radius: var(--radius-sm);
-    font-family: var(--mono); background: var(--bg);
+    word-break: break-all; line-height: 1.5;
+    user-select: all; cursor: text;
   }
-  .sync-section input:focus { outline: 2px solid var(--accent-2); outline-offset: -1px; }
-  .sync-section .hint {
-    font-size: 12px; color: var(--ink-soft); margin-top: 4px;
+  .sync-actions { display: flex; gap: 8px; margin-top: 12px; }
+  .sync-actions .btn { flex: 1; text-align: center; }
+  .sync-note {
+    font-size: 12px; color: var(--ink-soft); margin-top: 16px;
+    line-height: 1.5;
   }
-  .sync-id-display {
-    font-family: var(--mono); font-size: 18px; letter-spacing: .08em;
-    font-weight: 600; padding: 10px 14px;
-    background: var(--bg); border-radius: var(--radius-sm);
-    border: 1px solid var(--line); display: flex;
-    align-items: center; justify-content: space-between;
-  }
-  .sync-id-display .copy-id {
-    font-size: 12px; padding: 4px 10px; cursor: pointer;
-    background: var(--ink); color: #fff; border: 0;
-    border-radius: 4px; font-family: var(--sans);
-  }
-  .sync-status-msg {
+  .sync-loaded {
     padding: 10px 14px; border-radius: var(--radius-sm);
     font-size: 13px; margin-bottom: 12px;
+    background: #edf7ed; color: #1a5c1a;
   }
-  .sync-status-msg.ok { background: #edf7ed; color: #1a5c1a; }
-  .sync-status-msg.err { background: #fdf2f1; color: #9a2020; }
-  .sync-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
-  .sync-actions .btn { flex: 1; min-width: 100px; text-align: center; }
-  .sync-actions .btn.danger { color: var(--accent); border-color: var(--accent); }
-  .sync-actions .btn.danger:hover { background: #fdf2f1; }
-  .sync-tabs { display: flex; gap: 0; margin-bottom: 16px; border: 1px solid var(--line); border-radius: var(--radius-sm); overflow: hidden; }
-  .sync-tabs button {
-    flex: 1; padding: 8px; font-size: 13px; font-weight: 500;
-    border: 0; background: var(--bg); cursor: pointer; color: var(--ink-soft);
-    border-right: 1px solid var(--line);
-  }
-  .sync-tabs button:last-child { border-right: 0; }
-  .sync-tabs button.active { background: var(--bg-elev); color: var(--ink); font-weight: 600; }
-  .sync-detail { font-size: 13px; color: var(--ink-soft); margin-bottom: 4px; }
-  .sync-detail b { color: var(--ink); }
-  .sync-sql {
-    background: #1c1b1a; color: #e0ddd5; padding: 14px;
-    border-radius: var(--radius-sm); font-family: var(--mono);
-    font-size: 11px; line-height: 1.5; overflow: auto;
-    max-height: 200px; white-space: pre; margin: 8px 0;
-  }
-  .collapsible-header {
-    cursor: pointer; font-size: 12px; color: var(--accent-2);
-    display: flex; align-items: center; gap: 4px; margin: 12px 0 4px;
-    user-select: none;
-  }
-  .collapsible-header::before { content: "▸ "; }
-  .collapsible-header.open::before { content: "▾ "; }
 </style>
 </head>
 <body>
@@ -589,10 +531,6 @@
     <div class="stats">
       <div class="count"><span id="ownedCount">0</span><em>/108 owned</em></div>
       <div class="progress" aria-hidden="true"><span id="progressBar" style="width:0%"></span></div>
-      <div class="sync-indicator" id="syncIndicator" hidden>
-        <span class="dot" id="syncDot"></span>
-        <span id="syncLabel">offline</span>
-      </div>
     </div>
   </div>
 </div>
@@ -1034,7 +972,6 @@
   function persist() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify([...owned]));
     updateStats();
-    if (typeof debouncedCloudSave === "function") debouncedCloudSave();
   }
 
   let filter = "all";
@@ -1501,324 +1438,88 @@
   });
 
   /* -------------------------------------------------------------------- *
-   * Cloud Sync (Supabase REST API — no SDK)
-   *
-   * Setup: create a free Supabase project, then run the SQL shown in the
-   * sync modal.  Your collection is protected by a PIN — only someone who
-   * knows the PIN can save changes.
+   * Sync — encode owned collection in the URL hash so you can open the
+   * same link on any device.  No accounts, no servers, no setup.
    * -------------------------------------------------------------------- */
-  const SYNC_CFG_KEY = "tombow.sync.v1";
-  let syncCfg = null;
-  try { const r = localStorage.getItem(SYNC_CFG_KEY); if (r) syncCfg = JSON.parse(r); } catch(e) {}
-
-  const syncIndicator = document.getElementById("syncIndicator");
-  const syncDot = document.getElementById("syncDot");
-  const syncLbl = document.getElementById("syncLabel");
-  let syncTimer = null;
-
-  function saveSyncCfg() { localStorage.setItem(SYNC_CFG_KEY, JSON.stringify(syncCfg)); }
-
-  function showSyncStatus(text, isError) {
-    syncIndicator.hidden = false;
-    syncDot.className = "dot" + (isError ? " err" : " ok");
-    syncLbl.textContent = text;
-  }
-  function showSyncBusy() {
-    syncIndicator.hidden = false;
-    syncDot.className = "dot busy";
-    syncLbl.textContent = "syncing…";
-  }
-
-  async function sbFetch(path, opts = {}) {
-    const res = await fetch(syncCfg.url.replace(/\/+$/, "") + path, {
-      ...opts,
-      headers: {
-        "apikey": syncCfg.key,
-        "Authorization": "Bearer " + syncCfg.key,
-        "Content-Type": "application/json",
-        "Prefer": "return=representation",
-        ...(opts.headers || {})
-      }
+  function encodeOwned() {
+    const bits = new Uint8Array(Math.ceil(DATA.length / 8));
+    DATA.forEach((c, i) => {
+      if (owned.has(keyFor(c))) bits[i >> 3] |= (1 << (i & 7));
     });
-    if (!res.ok) {
-      const body = await res.text().catch(() => "");
-      throw new Error("HTTP " + res.status + " " + body);
-    }
-    return res.json();
+    let bin = "";
+    bits.forEach(b => { bin += String.fromCharCode(b); });
+    return btoa(bin).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
   }
 
-  async function cloudLoad() {
-    if (!syncCfg || !syncCfg.collectionId) return false;
-    showSyncBusy();
-    try {
-      const rows = await sbFetch(
-        "/rest/v1/collections?id=eq." + encodeURIComponent(syncCfg.collectionId) + "&select=owned_colors"
-      );
-      if (!rows.length) { showSyncStatus("collection not found", true); return false; }
-      const arr = rows[0].owned_colors || [];
-      const valid = arr.filter(k => validKeys.has(k));
-      owned = new Set(valid);
-      localStorage.setItem(STORAGE_KEY, JSON.stringify([...owned]));
-      updateStats();
-      renderGrid();
-      showSyncStatus("synced");
-      return true;
-    } catch (e) {
-      console.error("Cloud load:", e);
-      showSyncStatus("load failed", true);
-      return false;
-    }
+  function decodeOwned(str) {
+    str = str.replace(/-/g, "+").replace(/_/g, "/");
+    while (str.length % 4) str += "=";
+    const bin = atob(str);
+    const result = new Set();
+    DATA.forEach((c, i) => {
+      if (bin.charCodeAt(i >> 3) & (1 << (i & 7))) result.add(keyFor(c));
+    });
+    return result;
   }
 
-  async function cloudSave() {
-    if (!syncCfg || !syncCfg.collectionId || !syncCfg.secret) return;
-    showSyncBusy();
+  let loadedFromHash = false;
+  (function loadFromHash() {
+    const m = location.hash.match(/[#&]c=([A-Za-z0-9_-]+)/);
+    if (!m) return;
     try {
-      const result = await sbFetch("/rest/v1/rpc/save_collection", {
-        method: "POST",
-        body: JSON.stringify({
-          p_id: syncCfg.collectionId,
-          p_secret: syncCfg.secret,
-          p_owned: [...owned]
-        })
-      });
-      if (result === "unauthorized") {
-        showSyncStatus("wrong PIN", true);
-        return;
+      const decoded = decodeOwned(m[1]);
+      if (decoded.size > 0) {
+        owned = decoded;
+        localStorage.setItem(STORAGE_KEY, JSON.stringify([...owned]));
+        updateStats();
+        loadedFromHash = true;
       }
-      showSyncStatus("synced");
-    } catch (e) {
-      console.error("Cloud save:", e);
-      showSyncStatus("save failed", true);
-    }
-  }
+    } catch (e) { console.error("Bad hash:", e); }
+  })();
 
-  function debouncedCloudSave() {
-    if (!syncCfg) return;
-    if (syncTimer) clearTimeout(syncTimer);
-    syncTimer = setTimeout(cloudSave, 1200);
-  }
-
-  function genId(len) {
-    const c = "abcdefghjkmnpqrstuvwxyz23456789"; // no ambiguous chars
-    const a = new Uint8Array(len);
-    crypto.getRandomValues(a);
-    return Array.from(a, b => c[b % c.length]).join("");
+  function buildSyncUrl() {
+    return location.origin + location.pathname + (owned.size ? "#c=" + encodeOwned() : "");
   }
 
   /* ---- Sync modal ---- */
   const syncModal = document.getElementById("syncModal");
   const syncBody = document.getElementById("syncBody");
 
-  const SETUP_SQL = `-- Run this in your Supabase SQL Editor (one time)
-CREATE EXTENSION IF NOT EXISTS pgcrypto;
-
-CREATE TABLE collections (
-  id TEXT PRIMARY KEY,
-  secret_hash TEXT NOT NULL,
-  owned_colors JSONB NOT NULL DEFAULT '[]'::jsonb,
-  updated_at TIMESTAMPTZ DEFAULT NOW()
-);
-
-ALTER TABLE collections ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY "Public read" ON collections
-  FOR SELECT TO anon USING (true);
-
-CREATE OR REPLACE FUNCTION save_collection(
-  p_id TEXT, p_secret TEXT, p_owned JSONB
-) RETURNS TEXT LANGUAGE plpgsql SECURITY DEFINER AS $$
-DECLARE v_hash TEXT;
-BEGIN
-  SELECT secret_hash INTO v_hash
-    FROM collections WHERE id = p_id;
-  IF v_hash IS NULL THEN
-    INSERT INTO collections (id, secret_hash, owned_colors, updated_at)
-    VALUES (p_id, crypt(p_secret, gen_salt('bf')),
-            p_owned, NOW());
-    RETURN 'ok';
-  ELSIF v_hash = crypt(p_secret, v_hash) THEN
-    UPDATE collections
-       SET owned_colors = p_owned, updated_at = NOW()
-     WHERE id = p_id;
-    RETURN 'ok';
-  ELSE
-    RETURN 'unauthorized';
-  END IF;
-END; $$;`;
-
-  function renderSyncConnected() {
-    syncBody.innerHTML = `
-      <div class="sync-status-msg ok">Connected — changes sync automatically.</div>
-      <div class="sync-section">
-        <label>Collection ID</label>
-        <div class="sync-id-display">
-          <span>${syncCfg.collectionId}</span>
-          <button class="copy-id" id="copySyncId">Copy</button>
-        </div>
-        <div class="hint">Enter this ID on your other devices to connect.</div>
-      </div>
-      <div class="sync-actions">
-        <button class="btn" id="syncNowBtn">Sync now</button>
-        <button class="btn danger" id="disconnectBtn">Disconnect</button>
-      </div>
-    `;
-    document.getElementById("copySyncId").addEventListener("click", async () => {
-      try {
-        await navigator.clipboard.writeText(syncCfg.collectionId);
-        document.getElementById("copySyncId").textContent = "Copied!";
-        setTimeout(() => { document.getElementById("copySyncId").textContent = "Copy"; }, 1200);
-      } catch(e) { alert("Collection ID: " + syncCfg.collectionId); }
-    });
-    document.getElementById("syncNowBtn").addEventListener("click", async () => {
-      await cloudLoad();
-      renderGrid();
-    });
-    document.getElementById("disconnectBtn").addEventListener("click", () => {
-      if (!confirm("Disconnect cloud sync? Your local collection stays, but changes won't sync.")) return;
-      syncCfg = null;
-      localStorage.removeItem(SYNC_CFG_KEY);
-      syncIndicator.hidden = true;
-      renderSyncSetup();
-    });
-  }
-
-  function renderSyncSetup() {
-    const hasUrl = syncCfg && syncCfg.url && syncCfg.key;
-    syncBody.innerHTML = `
-      <div class="sync-section">
-        <p style="margin:0 0 12px;font-size:14px;color:var(--ink-soft)">
-          Sync your collection across devices using a free
-          <a href="https://supabase.com" target="_blank" rel="noopener">Supabase</a> project.
-        </p>
-        <label>Supabase project URL</label>
-        <input type="text" id="syncUrl" placeholder="https://abc123.supabase.co" value="${hasUrl ? syncCfg.url : ""}" />
-      </div>
-      <div class="sync-section">
-        <label>Anon / public key</label>
-        <input type="text" id="syncKey" placeholder="eyJhbGciOi..." value="${hasUrl ? syncCfg.key : ""}" />
-      </div>
-      <div class="collapsible-header" id="sqlToggle">Setup SQL (run once in Supabase)</div>
-      <div id="sqlBlock" hidden>
-        <div class="sync-sql">${SETUP_SQL.replace(/</g,"&lt;")}</div>
-        <button class="btn" id="copySqlBtn" style="font-size:12px">Copy SQL</button>
-      </div>
-      <hr style="border:0;border-top:1px solid var(--line);margin:16px 0" />
-      <div class="sync-tabs">
-        <button class="active" id="tabCreate">Create new collection</button>
-        <button id="tabConnect">Connect to existing</button>
-      </div>
-      <div id="createPane">
-        <div class="sync-section">
-          <label>Choose a PIN (4+ characters)</label>
-          <input type="password" id="newPin" placeholder="PIN" minlength="4" />
-          <div class="hint">This PIN protects your collection from edits by others.</div>
-        </div>
-        <button class="btn" id="createCollBtn" style="width:100%;text-align:center;margin-top:8px">Create collection</button>
-      </div>
-      <div id="connectPane" hidden>
-        <div class="sync-section">
-          <label>Collection ID</label>
-          <input type="text" id="existingId" placeholder="e.g. k7mp3xw2" />
-        </div>
-        <div class="sync-section">
-          <label>PIN</label>
-          <input type="password" id="existingPin" placeholder="PIN" />
-        </div>
-        <button class="btn" id="connectCollBtn" style="width:100%;text-align:center;margin-top:8px">Connect</button>
-      </div>
-    `;
-
-    // Tab switching
-    const tabCreate = document.getElementById("tabCreate");
-    const tabConnect = document.getElementById("tabConnect");
-    const createPane = document.getElementById("createPane");
-    const connectPane = document.getElementById("connectPane");
-    tabCreate.addEventListener("click", () => {
-      tabCreate.classList.add("active"); tabConnect.classList.remove("active");
-      createPane.hidden = false; connectPane.hidden = true;
-    });
-    tabConnect.addEventListener("click", () => {
-      tabConnect.classList.add("active"); tabCreate.classList.remove("active");
-      connectPane.hidden = false; createPane.hidden = true;
-    });
-
-    // SQL toggle
-    const sqlToggle = document.getElementById("sqlToggle");
-    const sqlBlock = document.getElementById("sqlBlock");
-    sqlToggle.addEventListener("click", () => {
-      sqlBlock.hidden = !sqlBlock.hidden;
-      sqlToggle.classList.toggle("open");
-    });
-    document.getElementById("copySqlBtn")?.addEventListener("click", async () => {
-      try { await navigator.clipboard.writeText(SETUP_SQL); document.getElementById("copySqlBtn").textContent = "Copied!"; setTimeout(() => { document.getElementById("copySqlBtn").textContent = "Copy SQL"; }, 1200); } catch(e) { }
-    });
-
-    // Create collection
-    document.getElementById("createCollBtn").addEventListener("click", async () => {
-      const url = document.getElementById("syncUrl").value.trim();
-      const key = document.getElementById("syncKey").value.trim();
-      const pin = document.getElementById("newPin").value;
-      if (!url || !key) { alert("Enter your Supabase project URL and anon key first."); return; }
-      if (pin.length < 4) { alert("PIN must be at least 4 characters."); return; }
-      const id = genId(8);
-      syncCfg = { url, key, collectionId: id, secret: pin };
-      saveSyncCfg();
-      try {
-        await cloudSave();
-        renderSyncConnected();
-      } catch (e) {
-        alert("Couldn't connect to Supabase. Check your URL and key.\n\n" + e.message);
-        syncCfg = null; localStorage.removeItem(SYNC_CFG_KEY);
-      }
-    });
-
-    // Connect to existing
-    document.getElementById("connectCollBtn").addEventListener("click", async () => {
-      const url = document.getElementById("syncUrl").value.trim();
-      const key = document.getElementById("syncKey").value.trim();
-      const id = document.getElementById("existingId").value.trim().toLowerCase();
-      const pin = document.getElementById("existingPin").value;
-      if (!url || !key) { alert("Enter your Supabase project URL and anon key first."); return; }
-      if (!id) { alert("Enter the collection ID."); return; }
-      if (!pin) { alert("Enter the PIN."); return; }
-      syncCfg = { url, key, collectionId: id, secret: pin };
-      saveSyncCfg();
-      try {
-        const loaded = await cloudLoad();
-        if (!loaded) { alert("Collection not found. Check the ID."); syncCfg = null; localStorage.removeItem(SYNC_CFG_KEY); return; }
-        // Verify write access by saving
-        await cloudSave();
-        renderGrid();
-        renderSyncConnected();
-      } catch (e) {
-        alert("Couldn't connect. Check your URL, key, and collection ID.\n\n" + e.message);
-        syncCfg = null; localStorage.removeItem(SYNC_CFG_KEY);
-      }
-    });
-  }
-
   function openSyncModal() {
-    if (syncCfg && syncCfg.collectionId && syncCfg.url) {
-      renderSyncConnected();
-    } else {
-      renderSyncSetup();
-    }
+    const url = buildSyncUrl();
+    syncBody.innerHTML =
+      (loadedFromHash ? '<div class="sync-loaded">Collection loaded from link.</div>' : "") +
+      (owned.size === 0
+        ? '<p style="margin:0 0 12px;font-size:14px;color:var(--ink-soft)">Mark some colors as owned first, then come back here to get a link you can open on your phone.</p>'
+        : '<p style="margin:0 0 12px;font-size:14px">Copy this link and open it on your phone to load your collection.</p>' +
+          '<div class="sync-url-box" id="syncUrlBox">' + url.replace(/</g, "&lt;") + '</div>' +
+          '<div class="sync-actions">' +
+            '<button class="btn" id="syncCopyBtn">Copy link</button>' +
+            (navigator.share ? '<button class="btn" id="syncShareBtn">Share</button>' : "") +
+          '</div>') +
+      '<p class="sync-note">Your ' + owned.size + ' owned color' + (owned.size === 1 ? " is" : "s are") +
+      ' encoded in the link. No account needed. Open the link on any device to load your collection. Nobody else can change your saved collection — changes only apply to their own device.</p>';
+
     syncModal.classList.add("open");
+
+    document.getElementById("syncCopyBtn")?.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(url);
+        const b = document.getElementById("syncCopyBtn");
+        b.textContent = "Copied!";
+        setTimeout(() => { b.textContent = "Copy link"; }, 1500);
+      } catch (e) { prompt("Copy this link:", url); }
+    });
+    document.getElementById("syncShareBtn")?.addEventListener("click", () => {
+      navigator.share({ title: "My Tombow Collection", url }).catch(() => {});
+    });
   }
+
   function closeSyncModal() { syncModal.classList.remove("open"); }
 
   document.getElementById("syncBtn").addEventListener("click", openSyncModal);
   document.getElementById("syncClose").addEventListener("click", closeSyncModal);
   syncModal.addEventListener("click", e => { if (e.target === syncModal) closeSyncModal(); });
-
-  // Auto-load from cloud on startup if configured
-  if (syncCfg && syncCfg.url && syncCfg.collectionId) {
-    syncIndicator.hidden = false;
-    syncLbl.textContent = "loading…";
-    syncDot.className = "dot busy";
-    cloudLoad().then(() => renderGrid());
-  }
 
   /* Initial paint */
   updateStats();
